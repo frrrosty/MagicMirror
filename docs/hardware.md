@@ -45,6 +45,17 @@ Für Haushalte mit Kleinkindern spricht viel für Acryl mit mindestens 3 mm Stä
 
 Wichtig: Die Fläche hinter dem Spiegel, die nicht vom Bildschirm abgedeckt ist, muss mit schwarzem Karton oder matter Folie abgeklebt werden. Sonst scheint Licht durch und der Spiegeleffekt geht verloren.
 
+## Wandmontage an Backstein
+
+Backstein trägt die rund 30 kg gut, solange die Dübel passen. In der Schweiz sind die meisten Backsteine Lochziegel mit Hohlkammern. Darauf ist zu achten:
+
+- Bohrhammer bzw. Schlagfunktion **ausschalten**, sonst brechen die dünnen Stege zwischen den Kammern und der Dübel findet keinen Halt
+- Lange Dübel für Lochsteine verwenden (z. B. Fischer DuoPower 10 × 80 mm), bei Unsicherheit Injektionsmörtel mit Siebhülse
+- Der Dübel muss im Stein sitzen, nicht im Verputz: Verputzdicke beim Bohren prüfen und Dübel entsprechend länger wählen
+- Vorher mit einem Leitungssucher prüfen, besonders senkrecht und waagrecht über Steckdosen und Schaltern
+- Alle vier VESA-Punkte der Wandhalterung nutzen und die Traglast der Halterung beachten
+- Der Spiegelrahmen bekommt eigene Befestigungspunkte, zum Beispiel eine Aufhängeleiste (French Cleat)
+
 ## Rahmen
 
 - Holzleisten so wählen, dass Spiegel, TV und Kabel Platz finden (Tiefe des TVs plus etwa 3 cm)
