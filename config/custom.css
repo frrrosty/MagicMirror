@@ -1,0 +1,23 @@
+/* Anpassungen für den Betrieb hinter einer Spiegelscheibe.
+ * Der Spionspiegel schluckt viel Licht, darum möglichst reines Weiss
+ * auf reinem Schwarz und etwas grössere Schrift.
+ */
+:root {
+	--color-text: #ccc;
+	--color-text-dimmed: #999;
+	--color-text-bright: #fff;
+	--color-background: #000;
+	--font-size: 22px;
+}
+
+body {
+	/* Abstand zum Rand, damit nichts unter dem Rahmen verschwindet */
+	margin: 50px;
+	height: calc(100% - 100px);
+	width: calc(100% - 100px);
+}
+
+.module-header {
+	color: var(--color-text-dimmed);
+	border-bottom-color: #444;
+}

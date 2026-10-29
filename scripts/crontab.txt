@@ -1,0 +1,13 @@
+# Zeitplan für den Spiegel (Zeitzone Europe/Zurich)
+# Übernehmen mit: crontab ~/magicmirror-setup/scripts/crontab.txt
+# Format: Minute Stunde Tag Monat Wochentag Befehl
+
+# Werktage: morgens und abends an, tagsüber und nachts aus
+30 6  * * 1-5  $HOME/magicmirror-setup/scripts/bildschirm.sh ein
+30 8  * * 1-5  $HOME/magicmirror-setup/scripts/bildschirm.sh aus
+0  17 * * 1-5  $HOME/magicmirror-setup/scripts/bildschirm.sh ein
+0  21 * * 1-5  $HOME/magicmirror-setup/scripts/bildschirm.sh aus
+
+# Wochenende: länger an
+0  7  * * 6,0  $HOME/magicmirror-setup/scripts/bildschirm.sh ein
+30 21 * * 6,0  $HOME/magicmirror-setup/scripts/bildschirm.sh aus
