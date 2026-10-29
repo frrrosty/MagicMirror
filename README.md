@@ -19,6 +19,7 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 | Pfad | Inhalt |
 | --- | --- |
 | `docs/hardware.md` | Einkaufsliste, Vorbereitung des TVs, Rahmenbau, Sicherheit |
+| `docs/tv-ue55ku6070.md` | Daten und Einschätzung zu unserem Samsung TV |
 | `docs/software.md` | Installation von Raspberry Pi OS und MagicMirror² |
 | `config/config.js` | MagicMirror²-Konfiguration (Deutsch, Standort Ermatingen) |
 | `config/custom.css` | Anpassungen am Erscheinungsbild für Spiegelbetrieb |
@@ -33,10 +34,13 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 3. **Spiegel und Rahmen:** Erst bestellen, wenn die genauen Masse des Panels bekannt sind.
 4. **Montage und Dauerbetrieb:** Zeitplan, Belüftung und Kabelführung abschliessen.
 
+## Stand
+
+- **TV:** Samsung UE55KU6070 (55 Zoll, 4K, 2016), Details in `docs/tv-ue55ku6070.md`
+- **Kalender:** Outlook.com (Hotmail), Anleitung in `docs/software.md`
+
 ## Offene Punkte
 
-Diese Angaben fehlen noch und beeinflussen die weitere Planung:
-
-- Genaue Modellbezeichnung des Samsung TVs (Typenschild auf der Rückseite, z. B. `UE40D5000`)
-- Gewünschter Standort (Flur, Küche, Badezimmer?) und Ausrichtung (hoch oder quer)
-- Welcher Familienkalender soll angezeigt werden (Google, iCloud, Outlook)?
+- Ausrichtung hoch oder quer (Entscheidungshilfe in `docs/tv-ue55ku6070.md`)
+- Standort und Tragfähigkeit der Wand (rund 30 kg Gesamtgewicht)
+- Masse und VESA-Abstand des TVs nachmessen

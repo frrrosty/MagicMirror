@@ -6,7 +6,8 @@ module.exports = {
 		{
 			name: "Familie",
 			symbol: "house",
-			url: "https://calendar.google.com/calendar/ical/HIER_PRIVATE_ADRESSE/basic.ics"
+			// ICS-Link aus Outlook.com: Einstellungen > Kalender > Freigegebene Kalender > Kalender veröffentlichen
+			url: "https://outlook.live.com/owa/calendar/HIER_ADRESSE/calendar.ics"
 		}
 	]
 };

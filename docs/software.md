@@ -27,9 +27,11 @@ Das Skript installiert Node.js, lädt MagicMirror² nach `~/MagicMirror`, verlin
 pm2 restart MagicMirror
 ```
 
-## 3. Bildschirm drehen (bei Hochformat)
+## 3. Auflösung und Ausrichtung
 
-Unter Raspberry Pi OS Bookworm: *Einstellungen > Screen Configuration*, Ausgang `HDMI-A-1` anklicken und unter *Orientation* «left» oder «right» wählen. Ein Fernseher im Hochformat sollte vorher auf Eignung geprüft werden, da nicht jeder Standfuss bzw. jede VESA-Halterung dafür gedacht ist.
+Unser Samsung UE55KU6070 ist ein 4K-Gerät. Für den Spiegel reicht 1920 × 1080 völlig: *Einstellungen > Screen Configuration*, Ausgang `HDMI-A-1` anklicken und unter *Resolution* `1920x1080` wählen.
+
+Bei Hochformat im selben Menü unter *Orientation* «left» oder «right» wählen. Ein Fernseher im Hochformat sollte vorher auf Eignung geprüft werden, da nicht jeder Standfuss bzw. jede VESA-Halterung dafür gedacht ist.
 
 ## 4. TV automatisch ein- und ausschalten
 
@@ -53,9 +55,13 @@ Reagiert der TV nicht, ist meist Anynet+ im TV-Menü ausgeschaltet. Als Rückfal
 
 ## 5. Kalender einbinden
 
-Für den Familienkalender wird die private iCal-Adresse benötigt:
+Für den Familienkalender wird eine ICS-Adresse benötigt. Unser Kalender liegt bei Outlook.com (Hotmail):
 
-- **Google Kalender:** Einstellungen > Kalender auswählen > «Privatadresse im iCal-Format»
-- **iCloud:** Kalender freigeben > «Öffentlicher Kalender» (Achtung: Link ist dann für alle mit der Adresse lesbar)
+1. Auf [outlook.live.com](https://outlook.live.com) mit dem Konto anmelden, dem der Kalender gehört.
+2. *Einstellungen (Zahnrad) > Kalender > Freigegebene Kalender > Kalender veröffentlichen*
+3. Kalender auswählen, Berechtigung «Kann alle Details anzeigen» und *Veröffentlichen* klicken.
+4. Den **ICS-Link** kopieren (nicht den HTML-Link).
+
+Ein Kalender, der nur mit einem anderen Konto geteilt wurde, lässt sich so nicht abonnieren. Die Veröffentlichung muss die Person vornehmen, der der Kalender gehört. Bei mehreren Kalendern (z. B. je einer pro Elternteil) wird jeder einzeln veröffentlicht und eingetragen. Outlook aktualisiert veröffentlichte Kalender mit etwas Verzögerung, neue Termine erscheinen darum nicht sofort.
 
 Die Adresse wird in `config/config.js` beim Modul `calendar` eingetragen. Solche Links sind wie Passwörter zu behandeln und sollten nicht in einem öffentlichen Repository landen. Darum liest die Konfiguration sie aus der Datei `config/secrets.js`, die per `.gitignore` ausgeschlossen ist. Eine Vorlage liegt unter `config/secrets.example.js`.
