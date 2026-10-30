@@ -4,13 +4,23 @@
 
 | Teil | Empfehlung | Bemerkung |
 | --- | --- | --- |
-| Rechner | Raspberry Pi 4 (2 GB) oder Raspberry Pi 5 | Pi 4 reicht, wird weniger warm |
-| Netzteil | Offizielles USB-C-Netzteil | Billignetzteile führen zu Abstürzen |
-| Speicher | microSD 32 GB, Markenprodukt (A1/A2) | Alternativ SSD per USB für mehr Langlebigkeit |
-| Kabel | Micro-HDMI auf HDMI, möglichst kurz | Pi 4 und 5 haben Micro-HDMI |
+| Rechner | Vorhandener Raspberry Pi 3 | siehe Abschnitt «Welcher Raspberry Pi?» |
+| Netzteil | Offizielles Micro-USB-Netzteil 2,5 A | Billignetzteile führen zu Abstürzen |
+| Speicher | microSD 32 GB, Markenprodukt (A1/A2) | |
+| Kabel | HDMI, möglichst kurz | Pi 3 hat einen normalen HDMI-Anschluss |
 | Spiegel | Spionspiegel aus Glas oder Acryl | siehe Abschnitt «Spiegelscheibe» |
 | Rahmen | Holzrahmen aus Leisten, Tiefe nach TV | siehe Abschnitt «Rahmen» |
 | Kleinteile | Steckdosenleiste, Kabelkanal, Schrauben, Filzstreifen | |
+
+## Welcher Raspberry Pi?
+
+| Modell | RAM | Eignung |
+| --- | --- | --- |
+| Pi Zero 2 W | 512 MB | Knapp. MagicMirror² läuft im Browser (Electron bzw. Chromium), und 512 MB reichen dafür kaum. Ruckeln und Abstürze sind wahrscheinlich. |
+| Pi 3 | 1 GB | Ausreichend bei 1080p und einer überschaubaren Anzahl Module. Vorhanden, kostet nichts. |
+| Pi 4 / Pi 5 | 2 GB und mehr | Komfortabel, aber für einen Spiegel überdimensioniert. |
+
+Entscheid: Wir starten mit dem vorhandenen **Pi 3** und installieren Raspberry Pi OS **64-bit**. Erst wenn er sich als zu langsam erweist, lohnt sich eine Neuanschaffung. Ein Pi Zero 2 W wäre dann nicht die richtige Wahl, eher ein Pi 4 mit 2 GB.
 
 ## Den Samsung TV prüfen
 

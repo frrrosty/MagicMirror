@@ -32,7 +32,12 @@ fi
 echo "==> Autostart mit pm2"
 sudo npm install -g pm2
 pm2 delete MagicMirror >/dev/null 2>&1 || true
-pm2 start npm --name MagicMirror --cwd "$MM_DIR" -- run start:wayland
+# Neuere Pi-Modelle laufen mit Wayland (labwc/wayfire), ältere teils noch mit X11
+if pgrep -x labwc >/dev/null || pgrep -x wayfire >/dev/null; then
+	pm2 start npm --name MagicMirror --cwd "$MM_DIR" -- run start:wayland
+else
+	DISPLAY=:0 pm2 start npm --name MagicMirror --cwd "$MM_DIR" -- run start
+fi
 pm2 save
 sudo env PATH="$PATH" pm2 startup systemd -u "$USER" --hp "$HOME"
 
