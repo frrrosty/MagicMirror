@@ -38,9 +38,11 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 
 - **TV:** Samsung UE55KU6070 (55 Zoll, 4K, 2016), Details in `docs/tv-ue55ku6070.md`
 - **Kalender:** Outlook.com (Hotmail), Anleitung in `docs/software.md`
+- **Wand:** Schweizer Lochziegel, Verputz ca. 1 bis 2 mm, ohne Schlag bohren (siehe `docs/hardware.md`)
 
 ## Offene Punkte
 
 - Ausrichtung hoch oder quer (Entscheidungshilfe in `docs/tv-ue55ku6070.md`)
-- Standort und Tragfähigkeit der Wand (rund 30 kg Gesamtgewicht)
+- Genauer Standort an der Wand
 - Masse und VESA-Abstand des TVs nachmessen
+- Stromversorgung: Steckdose hinter dem TV vorhanden oder nachrüsten?
