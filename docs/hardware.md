@@ -20,7 +20,9 @@
 | Pi 3 | 1 GB | Ausreichend bei 1080p und einer überschaubaren Anzahl Module. Vorhanden, kostet nichts. |
 | Pi 4 / Pi 5 | 2 GB und mehr | Komfortabel, aber für einen Spiegel überdimensioniert. |
 
-Entscheid: Wir starten mit dem vorhandenen **Pi 3** und installieren Raspberry Pi OS **64-bit**. Erst wenn er sich als zu langsam erweist, lohnt sich eine Neuanschaffung. Ein Pi Zero 2 W wäre dann nicht die richtige Wahl, eher ein Pi 4 mit 2 GB.
+Entscheid: Wir starten mit dem vorhandenen **Pi 3** und installieren Raspberry Pi OS **64-bit**. Erst wenn er sich als zu langsam erweist, lohnt sich eine Neuanschaffung. Ein Pi Zero 2 W wäre dann nicht die richtige Wahl, eher ein Pi 4 mit 2 GB. Dazu gehören ein USB-C-Netzteil mit 3 A, ein Kabel von Micro-HDMI auf HDMI und ein Gehäuse mit passiver Kühlung. Die microSD-Karte des Pi 3 kann weiterverwendet werden.
+
+Der Pi 5 bleibt mit dem AI HAT+ 2 für KI-Projekte reserviert.
 
 ## Den Samsung TV prüfen
 
