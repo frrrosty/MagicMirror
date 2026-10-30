@@ -33,6 +33,7 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 2. **TV prüfen:** Gewicht, Tiefe, Anschlüsse und Stromverbrauch des Geräts festhalten (siehe `docs/hardware.md`).
 3. **Spiegel und Rahmen:** Erst bestellen, wenn die genauen Masse des Panels bekannt sind.
 4. **Montage und Dauerbetrieb:** Zeitplan, Belüftung und Kabelführung abschliessen.
+5. **Bewegungssensor:** TV schaltet nur ein, wenn jemand davor steht (`docs/bewegungssensor.md`).
 
 ## Stand
 
