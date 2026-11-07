@@ -15,7 +15,7 @@ try {
 const STANDORT = { lat: 47.6703, lon: 9.0856 };
 const HALTESTELLE = "Ermatingen";
 // Bushaltestelle für den Bus nach Weinfelden, Name genau wie im SBB-Fahrplan
-const HALTESTELLE_BUS = "Ermatingen, Bahnhof";
+const HALTESTELLE_BUS = "Ermatingen, Friedhof";
 
 // "hoch" oder "quer", passend zu scripts/ausrichtung.sh
 const AUSRICHTUNG = "hoch";
@@ -205,9 +205,11 @@ const modules = [
 	{
 		module: "MMM-OeV",
 		position: PLATZ.oev,
-		header: `Abfahrten ${HALTESTELLE}`,
+		header: `Zug ab ${HALTESTELLE}`,
 		config: {
 			station: HALTESTELLE,
+			// Busse am Bahnhof ausblenden, der Bus kommt ab dem Friedhof
+			transportations: ["train"],
 			limit: HOCH ? 3 : 4,
 			walkingTime: secrets.gehzeitHaltestelle || 0
 		}
