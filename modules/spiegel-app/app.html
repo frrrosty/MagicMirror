@@ -231,7 +231,7 @@
 
 	<p class="fuss">
 		Name: <span id="name"></span> · <a href="#" id="nameAendern">ändern</a> ·
-		<a href="#" id="pinVergessen">PIN neu eingeben</a>
+		<a href="#" id="pinVergessen">Gerät neu anmelden</a>
 	</p>
 	<div id="meldung"></div>
 
@@ -256,6 +256,8 @@
 		let tagGewaehlt = TAGE[(new Date().getDay() + 6) % 7][0];
 		let reiter = speicher.get("sp-reiter") || "pinnwand";
 		let pinPause = false;     // nach «Abbrechen» beim automatischen Neuladen nicht erneut fragen
+		// Alte Version speicherte die PIN selbst; heute nur noch ein Geräte-Token
+		speicher.set("pw-pin", "");
 
 		function meldung (text, ok = false) {
 			const el = $("meldung");
@@ -276,22 +278,40 @@
 			return n;
 		}
 
-		async function api (methode, pfad, body, nochmal = true) {
-			const res = await fetch(`api/${pfad}`, {
+		/**
+		 * Einmalige Anmeldung mit der PIN. Danach schickt die App nur noch das Geräte-Token,
+		 * die PIN selbst wird nicht gespeichert.
+		 */
+		async function anmelden () {
+			const pin = prompt("PIN des Spiegels (einmalig für dieses Gerät):");
+			if (pin === null) {
+				pinPause = true;
+				throw new Error("Abgebrochen");
+			}
+			pinPause = false;
+			const res = await fetch("api/anmelden", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ pin: pin.trim(), name: speicher.get("pw-name") })
+			});
+			const json = await res.json();
+			if (!res.ok) throw new Error(json.fehler || "Anmeldung fehlgeschlagen");
+			speicher.set("sp-token", json.token);
+		}
+
+		async function api (methode, pfad, body, fragen = true) {
+			const anfrage = () => fetch(`api/${pfad}`, {
 				method: methode,
-				headers: { "Content-Type": "application/json", "X-Pin": speicher.get("pw-pin") },
+				headers: { "Content-Type": "application/json", "X-Token": speicher.get("sp-token") },
 				body: body ? JSON.stringify(body) : undefined
 			});
-			if (res.status === 403 && nochmal) {
-				// Falsche oder fehlende PIN: einmal nachfragen und gleich nochmals versuchen
-				const pin = prompt("PIN des Spiegels:");
-				if (pin === null) {
-					pinPause = true;
-					throw new Error("Abgebrochen");
-				}
-				pinPause = false;
-				speicher.set("pw-pin", pin.trim());
-				return api(methode, pfad, body, false);
+			let res = await anfrage();
+			if (res.status === 401) {
+				// Kein oder abgelaufenes Token: ungültiges Token nicht weiter mitschicken
+				speicher.set("sp-token", "");
+				if (!fragen) throw new Error("Abgebrochen");
+				await anmelden();
+				res = await anfrage();
 			}
 			const json = await res.json();
 			if (!res.ok) throw new Error(json.fehler || "Fehler");
@@ -485,10 +505,12 @@
 			fenster.forEach((f, i) => {
 				const zeile = document.createElement("div");
 				zeile.className = "fenster";
-				zeile.innerHTML = `<input type="time" value="${f.von}"><input type="time" value="${f.bis === "24:00" ? "23:59" : f.bis}">
+				zeile.innerHTML = `<input type="time"><input type="time">
 					<select><option value="an">An</option><option value="sensor">Sensor</option><option value="aus">Aus</option></select>
 					<button class="weg" aria-label="löschen">×</button>`;
 				const [von, bis] = zeile.querySelectorAll("input");
+				von.value = f.von;
+				bis.value = f.bis === "24:00" ? "23:59" : f.bis;
 				const modus = zeile.querySelector("select");
 				modus.value = f.modus;
 				modus.className = `modus-${f.modus}`;
@@ -538,9 +560,10 @@
 			b.onclick = () => aktion(async () => {
 				let minuten = $("sofortDauer").value;
 				if (minuten === "morgen") {
+					// Nächstes 06:00 Uhr, nach Mitternacht also noch am selben Tag
 					const morgen = new Date();
-					morgen.setDate(morgen.getDate() + 1);
 					morgen.setHours(6, 0, 0, 0);
+					if (morgen <= new Date()) morgen.setDate(morgen.getDate() + 1);
 					minuten = Math.round((morgen - Date.now()) / 60000);
 				}
 				steuerung = await api("POST", "steuerung/sofort", { aktion: b.dataset.sofort, minuten: Number(minuten) });
@@ -575,7 +598,7 @@
 		};
 		$("pinVergessen").onclick = (e) => {
 			e.preventDefault();
-			speicher.set("pw-pin", "");
+			speicher.set("sp-token", "");
 			pinPause = false;
 			laden();
 		};

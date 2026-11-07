@@ -7,7 +7,8 @@ set -euo pipefail
 
 MODUS="${MODUS:-cec}"
 AUSGANG="${AUSGANG:-HDMI-A-1}"
-GERAET="${CEC_GERAET:-$(ls /dev/cec* 2>/dev/null | head -n1)}"
+# «|| true»: ohne /dev/cec* darf das Skript nicht abbrechen, sonst wären die Ausweichwege tot
+GERAET="${CEC_GERAET:-$(ls /dev/cec* 2>/dev/null | head -n1 || true)}"
 
 cec_ctl () {
 	# Einmal als Wiedergabegerät anmelden, sonst darf der Pi keine Befehle senden

@@ -89,5 +89,7 @@ Exec=pm2 resurrect
 EOF
 
 chmod +x "$REPO_DIR"/scripts/*.sh "$REPO_DIR"/scripts/*.py
+# Persönliches nur für den eigenen Benutzer lesbar
+[ -f "$REPO_DIR/config/secrets.js" ] && chmod 600 "$REPO_DIR/config/secrets.js"
 echo "==> Fertig. Status: pm2 status | Protokoll: pm2 logs MagicMirror"
 echo "    Für die 1080p-Ausgabe einmal neu starten: sudo reboot"

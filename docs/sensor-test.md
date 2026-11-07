@@ -14,19 +14,17 @@ bash ~/magicmirror-setup/scripts/update.sh
 
 Der Spiegel sieht danach aus wie bisher, neu erscheint beim Seitenwechsel kurz der Name der Ansicht oben in der Mitte.
 
-## 2. PIN prüfen
+## 2. Neue, längere PIN setzen
 
-Die App braucht jetzt die PIN auch zum Lesen. Ohne PIN in `secrets.js` bleibt sie gesperrt.
+Die App fragt die PIN jetzt nur noch **einmal pro Gerät** ab und merkt sich danach ein sicheres Geräte-Token. Weil die PIN damit selten eingetippt wird, darf sie länger sein: **mindestens 6 Ziffern**. Ohne PIN lässt die App niemanden herein.
 
-```bash
-grep pinnwandPin ~/magicmirror-setup/config/secrets.js
-```
-
-Steht dort keine Zeile, PIN setzen (`1451` durch eigene ersetzen):
+Alte PIN entfernen und neue setzen (`482915` durch eine eigene, neue Zahl ersetzen):
 
 ```bash
-sed -i 's/^module.exports = {/module.exports = {\n\tpinnwandPin: "1451",/' ~/magicmirror-setup/config/secrets.js && pm2 restart MagicMirror
+sed -i '/pinnwandPin/d' ~/magicmirror-setup/config/secrets.js && sed -i 's/^module.exports = {/module.exports = {\n\tpinnwandPin: "482915",/' ~/magicmirror-setup/config/secrets.js && grep -n pinnwandPin ~/magicmirror-setup/config/secrets.js && pm2 restart MagicMirror
 ```
+
+Genau eine Zeile mit der neuen PIN sollte erscheinen, **in Anführungszeichen**.
 
 ## 3. App auf dem Handy
 
@@ -39,7 +37,7 @@ http://192.168.1.125:8081
 - Reiter **Pinnwand:** To-dos, Nachricht, neu **Sprüche und Erinnerungen**
 - Reiter **Steuerung:** Status, Sofort an/aus, Ansicht, Wochenplan, Sensor
 
-Am besten gleich «Zum Startbildschirm hinzufügen».
+Beim ersten Öffnen fragt die App einmal nach der PIN und meldet das Handy an. Am besten gleich «Zum Startbildschirm hinzufügen». Jedes Handy der Familie wird einmal so angemeldet.
 
 Im Reiter Steuerung steht jetzt «Sensor: keine Messung». Das ist richtig, solange kein Sensor dran ist. Im Sensorbetrieb bleibt der TV dann aus, Zeitplan und «Sofort» funktionieren aber.
 

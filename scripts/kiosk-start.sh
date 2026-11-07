@@ -6,10 +6,13 @@
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG="$HOME/.cache/kiosk.log"
 mkdir -p "$(dirname "$LOG")"
-# Protokoll klein halten
-if [ -f "$LOG" ] && [ "$(stat -c %s "$LOG")" -gt 1000000 ]; then
-	tail -c 200000 "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"
-fi
+# Protokoll klein halten (auch bei jedem Neustart von Chromium, siehe Schleife unten)
+kuerzen () {
+	if [ -f "$LOG" ] && [ "$(stat -c %s "$LOG")" -gt 1000000 ]; then
+		tail -c 200000 "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"
+	fi
+}
+kuerzen
 echo "$(date '+%F %T') Kiosk-Start" >> "$LOG"
 
 BROWSER="$(command -v chromium || command -v chromium-browser)"
@@ -65,6 +68,7 @@ while true; do
 		--disable-component-update --check-for-update-interval=31536000 \
 		"file://$REPO_DIR/scripts/warten.html" >> "$LOG" 2>&1
 	code=$?
+	kuerzen
 	echo "$(date '+%F %T') Chromium beendet (Code $code), Neustart in 5 Sekunden" >> "$LOG"
 	sleep 5
 done

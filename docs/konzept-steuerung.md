@@ -108,8 +108,16 @@ Eine Web-App, die vom Pi kommt und sich auf dem Handy wie eine App auf den Start
 
 ## Sicherheit und Robustheit
 
-- Der App-Server ist nur im Heimnetz erreichbar. Lesen geht ohne PIN, alles Ändernde braucht die PIN aus `secrets.js`.
-- Einstellungen liegen in `~/.config/magicmirror-steuerung.json` und überleben Neustarts und Updates.
+Der Prototyp wurde von einem unabhängigen Prüfer (separater Subagent) auf Sicherheit und Fehler geprüft, die Befunde sind behoben und getestet.
+
+- Der App-Server ist im Heimnetz und über Tailscale erreichbar, nie direkt aus dem Internet. Der MagicMirror²-Server selbst bleibt nur auf dem Pi erreichbar, weil er seine Konfiguration samt Kalenderlinks ausliefert.
+- **Anmeldung pro Gerät:** Die PIN aus `secrets.js` (mindestens 6 Ziffern) wird einmal eingegeben. Dafür gibt es ein zufälliges Geräte-Token, das jede Anfrage braucht, auch das Lesen. Gespeichert wird auf dem Pi nur der Hash des Tokens. Ohne PIN in `secrets.js` kommt niemand herein.
+- **Schutz vor Durchprobieren:** Nach 5 falschen PINs ist die Adresse 5 Minuten gesperrt, nach 20 insgesamt jede neue Anmeldung für 10 Minuten. Angemeldete Geräte der Familie sind davon nie betroffen.
+- **Schutz vor fremden Webseiten:** Token im eigenen Header (Cross-Site-Anfragen scheitern), Prüfung des Host-Namens (DNS-Rebinding), Schutz-Header gegen Einbetten und eingeschleuste Skripte, nur fest benannte Dateien.
+- **Robustheit:** Ungültige Anfragen können den Server nicht zum Absturz bringen, interne Fehlermeldungen bleiben intern, Grössen und Anzahl der Einträge sind begrenzt.
+- Einstellungen und eine laufende Übersteuerung liegen in `~/.config/magicmirror-steuerung.json` und überleben Neustarts und Updates. Gespeichert wird atomar (kein halber Inhalt bei Stromausfall), nur für den eigenen Benutzer lesbar. Eine beschädigte Datei wird beiseitegelegt statt still überschrieben.
+- Schaltbefehle laufen nacheinander, nie gleichzeitig. Scheitert einer, wird er nach einer Minute wiederholt.
+- Die Anwesenheit wird über drei Messungen geglättet, ein einzelnes Phantom-Echo schaltet nichts.
 - Zwischen zwei Schaltvorgängen liegen mindestens 15 Sekunden, damit der TV bei wackligen Messungen nicht flackert.
 - Fällt der Sensor aus oder ist keiner angeschlossen, verhält sich «Sensor» wie «Aus», und die App zeigt «Sensor fehlt». Zeitplan und App funktionieren weiter.
 - Für Tests ohne TV gibt es einen Trockenmodus (`STEUERUNG_TROCKEN=1`), der nur protokolliert statt zu schalten.
@@ -119,7 +127,7 @@ Eine Web-App, die vom Pi kommt und sich auf dem Handy wie eine App auf den Start
 | Etappe | Inhalt | Stand |
 | --- | --- | --- |
 | 1 | Konzept | erledigt |
-| 2 | Prototyp: Steuerzentrale, Zeitplan, Sensor, Gesten Tippen/Halten, Seiten, App | dieser Schritt |
+| 2 | Prototyp: Steuerzentrale, Zeitplan, Sensor, Gesten Tippen/Halten, Seiten, App, Sicherheitsprüfung | erledigt, getestet mit simuliertem Sensor |
 | 3 | Sensor anschliessen und Schwellen im Alltag einstellen | nach Prototyp |
 | 4 | Gestensensor PAJ7620 für echte Wischgesten | optional |
 | 5 | Zugriff von unterwegs (Tailscale) | optional |

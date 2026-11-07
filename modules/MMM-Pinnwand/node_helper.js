@@ -2,13 +2,13 @@
  * Die Schnittstellen hängen am gemeinsamen App-Server (modules/spiegel-app).
  * Daten liegen in ~/.config/magicmirror-pinnwand.json.
  */
-const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const NodeHelper = require("node_helper");
 const Log = require("logger");
 const app = require("../spiegel-app/server.js");
+const speicher = require("../spiegel-app/speicher.js");
 
 const DATEI = path.join(os.homedir(), ".config", "magicmirror-pinnwand.json");
 const ERLEDIGT_BEHALTEN_MS = 7 * 24 * 60 * 60 * 1000;
@@ -106,18 +106,16 @@ module.exports = NodeHelper.create({
 	},
 
 	laden () {
-		let daten = {};
-		try {
-			daten = JSON.parse(fs.readFileSync(DATEI, "utf8"));
-		} catch {
-			// noch keine Daten
-		}
-		return { todos: [], nachricht: null, sprueche: [], ...daten };
+		const d = speicher.lesen(DATEI) || {};
+		return {
+			todos: Array.isArray(d.todos) ? d.todos : [],
+			nachricht: d.nachricht && typeof d.nachricht === "object" ? d.nachricht : null,
+			sprueche: Array.isArray(d.sprueche) ? d.sprueche : []
+		};
 	},
 
 	speichern () {
-		fs.mkdirSync(path.dirname(DATEI), { recursive: true });
-		fs.writeFileSync(DATEI, JSON.stringify(this.daten, null, "\t"));
+		speicher.schreiben(DATEI, this.daten);
 	},
 
 	aufraeumen (mitSenden) {

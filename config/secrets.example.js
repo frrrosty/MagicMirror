@@ -21,7 +21,8 @@ module.exports = {
 		// { name: "Ben", datum: "09-02" }
 	],
 
-	// PIN für die Pinnwand auf dem Handy (Port 8081); leer = ohne PIN
+	// PIN für die Spiegel-App auf dem Handy (Port 8081), in Anführungszeichen,
+	// mindestens 6 Ziffern. Ohne PIN lässt die App niemanden herein.
 	pinnwandPin: "",
 
 	// Gehzeit zur Haltestelle in Minuten; Verbindungen, die nicht mehr erreichbar sind, werden ausgeblendet

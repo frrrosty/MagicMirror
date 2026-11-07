@@ -16,6 +16,8 @@ for modul in "$REPO_DIR"/modules/*/; do
 	ln -sfn "${modul%/}" "$MM_DIR/modules/$(basename "$modul")"
 done
 chmod +x "$REPO_DIR"/scripts/*.sh "$REPO_DIR"/scripts/*.py
+# Persönliches nur für den eigenen Benutzer lesbar
+[ -f "$REPO_DIR/config/secrets.js" ] && chmod 600 "$REPO_DIR/config/secrets.js"
 
 echo "==> Spiegel neu laden"
 pm2 restart MagicMirror
