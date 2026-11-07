@@ -14,16 +14,23 @@ Der Fernseher dient nur noch als Monitor. Die eigentliche Intelligenz liefert ei
 
 Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Ältere Modelle erhalten keine Updates mehr, und ein Browser auf dem TV lässt sich kaum zuverlässig im Dauerbetrieb steuern.
 
+![Vorschau des Spiegels mit Beispieldaten](docs/vorschau.png)
+
 ## Projektstruktur
 
 | Pfad | Inhalt |
 | --- | --- |
 | `docs/hardware.md` | Einkaufsliste, Vorbereitung des TVs, Rahmenbau, Sicherheit |
 | `docs/tv-ue55ku6070.md` | Daten und Einschätzung zu unserem Samsung TV |
-| `docs/software.md` | Installation von Raspberry Pi OS und MagicMirror² |
+| `docs/software.md` | Installation von Raspberry Pi OS und MagicMirror², Arbeit per SSH |
+| `docs/einrichten.md` | Persönliche Angaben eintragen und den Spiegel anpassen |
+| `docs/bewegungssensor.md` | Anwesenheitssensor mit dem Grove Ultrasonic Ranger |
 | `config/config.js` | MagicMirror²-Konfiguration (Deutsch, Standort Ermatingen) |
 | `config/custom.css` | Anpassungen am Erscheinungsbild für Spiegelbetrieb |
+| `config/secrets.example.js` | Vorlage für Persönliches (Kalender, Geburtstage, Entsorgung) |
+| `modules/MMM-OeV` | Eigenes Modul: nächste Abfahrten ab Ermatingen |
 | `scripts/install.sh` | Automatisierte Installation auf dem Raspberry Pi |
+| `scripts/update.sh` | Neuesten Stand holen und Spiegel neu laden |
 | `scripts/bildschirm.sh` | TV per HDMI-CEC ein- und ausschalten |
 | `scripts/kiosk-modus.sh` | Anzeige über Chromium statt Electron (für den Pi 3) |
 | `scripts/crontab.txt` | Zeitplan für das automatische Ein- und Ausschalten |
@@ -41,6 +48,8 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 
 - **TV:** Samsung UE55KU6070 (55 Zoll, 4K, 2016), Details in `docs/tv-ue55ku6070.md`
 - **Kalender:** Outlook.com (Hotmail), Anleitung in `docs/software.md`
+- **Rechner:** Raspberry Pi 3 mit Raspberry Pi OS 64-bit (Debian 13), Anzeige über Chromium im Kiosk-Modus
+- **Software:** MagicMirror² 2.38 läuft im Keller am Samsung, Konfiguration siehe `docs/einrichten.md`
 - **Wand:** Schweizer Lochziegel, Verputz ca. 1 bis 2 mm, ohne Schlag bohren (siehe `docs/hardware.md`)
 
 ## Offene Punkte

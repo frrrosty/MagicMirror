@@ -1,23 +1,94 @@
-/* Anpassungen für den Betrieb hinter einer Spiegelscheibe.
- * Der Spionspiegel schluckt viel Licht, darum möglichst reines Weiss
- * auf reinem Schwarz und etwas grössere Schrift.
+/* Erscheinungsbild für den Betrieb hinter einer Spiegelscheibe.
+ * Der Spionspiegel schluckt viel Licht: reines Schwarz, kräftiges Weiss,
+ * wenig Farbe und eine ruhige Mitte für das Spiegelbild.
  */
 :root {
-	--color-text: #ccc;
-	--color-text-dimmed: #999;
+	--color-text: #bbb;
+	--color-text-dimmed: #777;
 	--color-text-bright: #fff;
 	--color-background: #000;
 	--font-size: 22px;
+	--gap-body-top: 50px;
+	--gap-body-right: 60px;
+	--gap-body-bottom: 40px;
+	--gap-body-left: 60px;
+	--gap-modules: 36px;
 }
 
-body {
-	/* Abstand zum Rand, damit nichts unter dem Rahmen verschwindet */
-	margin: 50px;
-	height: calc(100% - 100px);
-	width: calc(100% - 100px);
-}
-
+/* Überschriften der Module: klein, gesperrt, ohne harte Linie */
 .module-header {
 	color: var(--color-text-dimmed);
-	border-bottom-color: #444;
+	border-bottom: 1px solid #333;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	font-size: 14px;
+	padding-bottom: 4px;
+	margin-bottom: 8px;
+}
+
+/* Uhr: gross und leicht */
+.clock .time {
+	font-size: 110px;
+	line-height: 100px;
+	font-weight: 200;
+	letter-spacing: -0.02em;
+}
+
+.clock .seconds {
+	color: var(--color-text-dimmed);
+}
+
+.clock .date {
+	font-size: 26px;
+	color: var(--color-text);
+	text-transform: capitalize;
+}
+
+.clock .week {
+	font-size: 16px;
+	color: var(--color-text-dimmed);
+}
+
+/* Aktuelles Wetter: grosse Temperatur */
+.weather .large {
+	font-size: 90px;
+	line-height: 90px;
+}
+
+/* Farbige Temperaturen etwas gedämpft, damit sie nicht schreien */
+.weather .max-temp.colored,
+.weather .colored .max-temp {
+	color: #f9b38c;
+}
+
+.weather .min-temp.colored,
+.weather .colored .min-temp {
+	color: #9cc9f2;
+}
+
+/* Kalender: Datum rechts dezenter */
+.calendar .time {
+	color: var(--color-text-dimmed);
+	padding-left: 20px;
+}
+
+.calendar .symbol {
+	color: var(--color-text-dimmed);
+}
+
+/* Spruch: luftig in der unteren Bildhälfte */
+.compliments .module-content {
+	font-weight: 200;
+	letter-spacing: 0.01em;
+}
+
+/* Nachrichten: schmaler und gedämpft */
+.newsfeed .newsfeed-title {
+	font-size: 26px;
+	line-height: 32px;
+	font-weight: 300;
+}
+
+.newsfeed .newsfeed-source {
+	color: var(--color-text-dimmed);
 }

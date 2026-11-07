@@ -1,7 +1,9 @@
-/* Vorlage: Kopieren nach secrets.js und Adressen eintragen.
- * secrets.js wird von git ignoriert und nie hochgeladen.
+/* Vorlage: Kopieren nach secrets.js und eigene Angaben eintragen.
+ * secrets.js wird von git ignoriert und nie hochgeladen. Alles ist optional:
+ * Was fehlt oder leer bleibt, wird auf dem Spiegel einfach nicht angezeigt.
  */
 module.exports = {
+	// Familienkalender (ICS-Links), siehe docs/software.md
 	calendars: [
 		{
 			name: "Familie",
@@ -9,5 +11,19 @@ module.exports = {
 			// ICS-Link aus Outlook.com: Einstellungen > Kalender > Freigegebene Kalender > Kalender veröffentlichen
 			url: "https://outlook.live.com/owa/calendar/HIER_ADRESSE/calendar.ics"
 		}
-	]
+		// Weitere Kalender einfach anhängen, z. B. mit eigener Farbe:
+		// { name: "Papi", symbol: "user", color: "#9cf", url: "https://..." }
+	],
+
+	// Geburtstage für die Sprüche am jeweiligen Tag (Monat-Tag)
+	geburtstage: [
+		// { name: "Anna", datum: "03-15" },
+		// { name: "Ben", datum: "09-02" }
+	],
+
+	// ICS-Link des Entsorgungskalenders der Gemeinde (Kehricht, Papier, Karton, Grüngut)
+	entsorgung: "",
+
+	// Gehzeit zur Haltestelle in Minuten; Verbindungen, die nicht mehr erreichbar sind, werden ausgeblendet
+	gehzeitHaltestelle: 5
 };

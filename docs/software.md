@@ -96,6 +96,38 @@ cd ~/magicmirror-setup && git pull && pm2 restart MagicMirror
 
 Bequemer geht das Bearbeiten mit Visual Studio Code und der Erweiterung «Remote - SSH». Damit öffnest du den Ordner auf dem Pi direkt im Editor am PC.
 
+## Zugang von einem weiteren Gerät (z. B. Laptop)
+
+Der Pi akzeptiert nur hinterlegte Schlüssel. Ein neues Gerät muss darum einmal von einem Gerät aus eingetragen werden, das bereits Zugang hat.
+
+1. Auf dem Laptop einen Schlüssel erzeugen, falls `~/.ssh/id_ed25519.pub` noch nicht existiert:
+
+```bash
+ssh-keygen -t ed25519 -C "laptop"
+```
+
+2. Den öffentlichen Schlüssel des Laptops anzeigen und die ganze Zeile kopieren (sie beginnt mit `ssh-ed25519`), zum Beispiel per Mail an sich selbst oder über OneDrive auf den Desktop bringen:
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+3. Vom **Desktop** aus auf den Pi verbinden und die Zeile anhängen. Den Platzhalter durch die kopierte Zeile ersetzen, die Anführungszeichen bleiben:
+
+```bash
+echo "ssh-ed25519 AAAA...laptop" >> ~/.ssh/authorized_keys
+```
+
+4. Auf dem Laptop in `~/.ssh/config` den Eintrag ergänzen (Datei bei Bedarf neu anlegen):
+
+```
+Host spiegel
+    HostName spiegel.local
+    User admin
+```
+
+Danach verbindet sich der Laptop mit `ssh spiegel`. Nur den öffentlichen Schlüssel (`.pub`) weitergeben, den privaten nie.
+
 ## Ausrichtung (falls Hochformat)
 
 Solange Hoch- oder Querformat nicht entschieden ist, bleibt das Bild quer. Für einen Test im Hochformat per SSH:

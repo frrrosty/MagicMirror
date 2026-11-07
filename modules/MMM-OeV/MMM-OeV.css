@@ -1,0 +1,49 @@
+.oev table {
+	border-collapse: collapse;
+}
+
+.oev td {
+	padding: 2px 0 2px 14px;
+	white-space: nowrap;
+}
+
+.oev td:first-child {
+	padding-left: 0;
+}
+
+.oev-line {
+	display: inline-block;
+	min-width: 2.6em;
+	padding: 0 6px;
+	border: 1px solid var(--color-text-dimmed);
+	border-radius: 4px;
+	font-size: 0.8em;
+	text-align: center;
+	color: var(--color-text-bright);
+}
+
+/* S-Bahn und Fernverkehr hervorheben, Busse zurückhaltend */
+.oev-s,
+.oev-ir,
+.oev-re,
+.oev-ic {
+	border-color: var(--color-text-bright);
+}
+
+.oev-b {
+	border-style: dashed;
+}
+
+.oev-to {
+	max-width: 14em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.oev-time {
+	text-align: right;
+}
+
+.oev-delay {
+	color: #f88;
+}

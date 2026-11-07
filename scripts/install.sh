@@ -28,6 +28,10 @@ echo "==> Konfiguration verlinken"
 ln -sf "$REPO_DIR/config/config.js" "$MM_DIR/config/config.js"
 # Ab MagicMirror² 2.30 liegt custom.css im config-Ordner
 ln -sf "$REPO_DIR/config/custom.css" "$MM_DIR/config/custom.css"
+# Eigene Module aus diesem Repository
+for modul in "$REPO_DIR"/modules/*/; do
+	ln -sfn "${modul%/}" "$MM_DIR/modules/$(basename "$modul")"
+done
 if [ ! -f "$REPO_DIR/config/secrets.js" ]; then
 	echo "    Hinweis: config/secrets.js fehlt, Familienkalender bleibt leer."
 fi
@@ -46,16 +50,25 @@ fi
 echo "==> MagicMirror² mit pm2 starten"
 sudo npm install -g pm2
 pm2 delete MagicMirror >/dev/null 2>&1 || true
-# Per SSH fehlen die Angaben zur Bildschirmsitzung, darum hier ermitteln
-WL_SOCKET="$(ls "$RUNTIME_DIR" 2>/dev/null | grep -m1 -E '^wayland-[0-9]+$' || true)"
-if [ -n "$WL_SOCKET" ]; then
-	WAYLAND_DISPLAY="$WL_SOCKET" XDG_RUNTIME_DIR="$RUNTIME_DIR" \
-		pm2 start npm --name MagicMirror --cwd "$MM_DIR" -- run start:wayland
-else
-	DISPLAY=:0 XAUTHORITY="$HOME/.Xauthority" \
-		pm2 start npm --name MagicMirror --cwd "$MM_DIR" -- run start
+# Auf dem Pi 3 zeigt Electron kein Bild, dort übernimmt Chromium die Anzeige
+ANZEIGE="${ANZEIGE:-}"
+if [ -z "$ANZEIGE" ] && grep -q "Raspberry Pi 3" /proc/device-tree/model 2>/dev/null; then
+	ANZEIGE=kiosk
 fi
-pm2 save
+if [ "$ANZEIGE" = kiosk ]; then
+	bash "$REPO_DIR/scripts/kiosk-modus.sh"
+else
+	# Per SSH fehlen die Angaben zur Bildschirmsitzung, darum hier ermitteln
+	WL_SOCKET="$(ls "$RUNTIME_DIR" 2>/dev/null | grep -m1 -E '^wayland-[0-9]+$' || true)"
+	if [ -n "$WL_SOCKET" ]; then
+		WAYLAND_DISPLAY="$WL_SOCKET" XDG_RUNTIME_DIR="$RUNTIME_DIR" \
+			pm2 start npm --name MagicMirror --cwd "$MM_DIR" -- run start:wayland
+	else
+		DISPLAY=:0 XAUTHORITY="$HOME/.Xauthority" \
+			pm2 start npm --name MagicMirror --cwd "$MM_DIR" -- run start:x11
+	fi
+	pm2 save
+fi
 
 echo "==> Autostart nach der Desktop-Anmeldung"
 # Bewusst kein systemd-Dienst: Der würde vor dem Desktop starten und kein Bild finden
