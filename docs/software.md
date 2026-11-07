@@ -150,11 +150,7 @@ Das Skript `scripts/bildschirm.sh` steuert den Samsung TV über HDMI-CEC:
 ~/magicmirror-setup/scripts/bildschirm.sh ein
 ```
 
-Funktioniert das, kann der Zeitplan aus `scripts/crontab.txt` übernommen werden:
-
-```bash
-crontab ~/magicmirror-setup/scripts/crontab.txt
-```
+Im Alltag ruft die Steuerzentrale `MMM-Steuerung` dieses Skript selbst auf, nach Wochenplan und Sensor. Einstellen lässt sich das in der Handy-App, siehe [Konzept](konzept-steuerung.md) und [Checkliste](sensor-test.md).
 
 Reagiert der TV nicht, ist meist Anynet+ im TV-Menü ausgeschaltet. Als Rückfallebene kann das Skript stattdessen nur das HDMI-Signal abschalten. Viele Samsung-Geräte gehen dann nach einigen Minuten selbst in den Standby.
 

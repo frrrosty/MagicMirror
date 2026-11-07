@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="de">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<meta name="theme-color" content="#111111">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-title" content="Spiegel">
+	<title>Spiegel</title>
+	<link rel="manifest" href="manifest.webmanifest">
+	<link rel="icon" href="icon.svg" type="image/svg+xml">
+	<link rel="apple-touch-icon" href="icon.svg">
+	<style>
+		:root {
+			--bg: #111;
+			--karte: #1c1c1e;
+			--linie: #2c2c2e;
+			--text: #f2f2f2;
+			--leise: #8e8e93;
+			--akzent: #64b5f6;
+			--gruen: #66bb6a;
+			--gefahr: #ef5350;
+		}
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			padding: max(12px, env(safe-area-inset-top)) 16px 90px;
+			background: var(--bg);
+			color: var(--text);
+			font: 17px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif;
+		}
+		h1 { font-size: 28px; margin: 8px 0 16px; font-weight: 600; }
+		h2 {
+			font-size: 13px; margin: 26px 0 8px; color: var(--leise);
+			text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500;
+		}
+		.karte { background: var(--karte); border-radius: 12px; overflow: hidden; }
+		.innen { padding: 14px; }
+		form { display: flex; gap: 8px; }
+		input, textarea, select, button { font: inherit; color: inherit; }
+		input[type=text], input[type=number], input[type=time], textarea, select {
+			width: 100%; padding: 11px; border: 1px solid var(--linie);
+			border-radius: 10px; background: var(--karte);
+		}
+		textarea { resize: vertical; min-height: 70px; }
+		button {
+			padding: 11px 14px; border: none; border-radius: 10px;
+			background: var(--akzent); color: #000; font-weight: 600; white-space: nowrap;
+		}
+		button.leise { background: var(--linie); color: var(--text); }
+		button.klein { padding: 6px 10px; font-size: 14px; }
+		ul { list-style: none; margin: 0; padding: 0; }
+		li {
+			display: flex; align-items: center; gap: 12px;
+			padding: 12px 14px; border-bottom: 1px solid var(--linie);
+		}
+		li:last-child { border-bottom: none; }
+		li .text { flex: 1; overflow-wrap: anywhere; }
+		li .von { color: var(--leise); font-size: 13px; }
+		li.erledigt .text { color: var(--leise); text-decoration: line-through; }
+		.haken {
+			width: 26px; height: 26px; flex: none; border-radius: 50%;
+			border: 2px solid var(--leise); background: none; padding: 0;
+		}
+		li.erledigt .haken { background: var(--akzent); border-color: var(--akzent); }
+		.weg { background: none; color: var(--leise); padding: 4px 8px; font-size: 20px; }
+		.leer { padding: 14px; color: var(--leise); }
+		.reihe { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+		.reihe > * { flex: 1; }
+		.aktuell .text { font-size: 20px; }
+		.info { color: var(--leise); font-size: 13px; margin-top: 4px; }
+		#meldung {
+			position: fixed; left: 16px; right: 16px; bottom: 84px; padding: 12px 14px;
+			border-radius: 10px; background: var(--gefahr); color: #fff; display: none; z-index: 5;
+		}
+		#meldung.ok { background: var(--gruen); color: #000; }
+		.fuss { margin-top: 32px; color: var(--leise); font-size: 13px; }
+		.fuss a { color: var(--leise); }
+
+		/* Reiter unten wie in einer App */
+		nav {
+			position: fixed; left: 0; right: 0; bottom: 0; display: flex;
+			background: #161618; border-top: 1px solid var(--linie);
+			padding-bottom: env(safe-area-inset-bottom);
+		}
+		nav button {
+			flex: 1; background: none; color: var(--leise); border-radius: 0;
+			padding: 14px 0 16px; font-weight: 500;
+		}
+		nav button.aktiv { color: var(--akzent); }
+		section[hidden] { display: none; }
+
+		/* Steuerung */
+		.status { display: flex; align-items: center; gap: 14px; }
+		.lampe { width: 18px; height: 18px; border-radius: 50%; background: #444; flex: none; }
+		.lampe.an { background: var(--gruen); box-shadow: 0 0 10px var(--gruen); }
+		.status .gross { font-size: 22px; font-weight: 600; }
+		.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+		.chips button { flex: none; }
+		.chips button.gewaehlt { background: var(--akzent); color: #000; }
+		.tage { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+		.tage button { flex: none; min-width: 44px; padding: 8px 10px; }
+		.tage button:not(.gewaehlt) { background: var(--linie); color: var(--text); }
+		.fenster { display: grid; grid-template-columns: 1fr 1fr 1.3fr auto; gap: 6px; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--linie); }
+		.fenster input, .fenster select { padding: 8px; font-size: 15px; }
+		.feld { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--linie); }
+		.feld:last-child { border-bottom: none; }
+		.feld input[type=number] { width: 90px; text-align: right; }
+		.feld select { width: auto; }
+		.modus-an { color: var(--gruen); }
+		.modus-aus { color: var(--gefahr); }
+	</style>
+</head>
+<body>
+	<!-- ===================== Pinnwand ===================== -->
+	<section id="seite-pinnwand">
+		<h1>Pinnwand</h1>
+
+		<h2>Neues To-do</h2>
+		<form id="todoForm">
+			<input id="todoText" type="text" maxlength="120" placeholder="z. B. Milch kaufen" autocomplete="off">
+			<button type="submit">+</button>
+		</form>
+
+		<h2>Zu erledigen</h2>
+		<div class="karte"><ul id="offen"></ul></div>
+
+		<h2>Nachricht auf dem Spiegel</h2>
+		<div class="karte" id="aktuell" hidden></div>
+		<form id="nachrichtForm" style="display:block; margin-top:8px">
+			<textarea id="nachrichtText" maxlength="200" placeholder="z. B. Bin um 18 Uhr zurück"></textarea>
+			<div class="reihe">
+				<select id="dauer">
+					<option value="2">2 Stunden</option>
+					<option value="heute" selected>bis heute Abend</option>
+					<option value="24">1 Tag</option>
+					<option value="72">3 Tage</option>
+				</select>
+				<button type="submit">Zeigen</button>
+			</div>
+		</form>
+
+		<h2>Sprüche und Erinnerungen</h2>
+		<form id="spruchForm" style="display:block">
+			<input id="spruchText" type="text" maxlength="80" placeholder="z. B. Turnsachen nicht vergessen!" autocomplete="off">
+			<div class="reihe">
+				<select id="spruchWann">
+					<option value="anytime">jederzeit</option>
+					<option value="morning">morgens</option>
+					<option value="afternoon">nachmittags</option>
+					<option value="evening">abends</option>
+				</select>
+				<input id="spruchDatum" type="date" title="Nur an diesem Tag (leer = jeden Tag)">
+			</div>
+			<div class="reihe"><button type="submit">Spruch hinzufügen</button></div>
+		</form>
+		<div class="info" style="margin: 8px 2px">Mit Datum erscheint der Spruch nur an diesem Tag und hat dann Vorrang vor allen anderen, ideal als Erinnerung.</div>
+		<div class="karte" style="margin-top:8px"><ul id="sprueche"></ul></div>
+
+		<h2>Erledigt</h2>
+		<div class="karte"><ul id="erledigt"></ul></div>
+	</section>
+
+	<!-- ===================== Steuerung ===================== -->
+	<section id="seite-steuerung" hidden>
+		<h1>Steuerung</h1>
+
+		<div class="karte innen status">
+			<div class="lampe" id="lampe"></div>
+			<div>
+				<div class="gross" id="tvText">–</div>
+				<div class="info" id="tvGrund"></div>
+			</div>
+		</div>
+		<div class="info" id="sensorText" style="margin: 8px 2px 0"></div>
+
+		<h2>Sofort</h2>
+		<div class="reihe">
+			<select id="sofortDauer">
+				<option value="30">30 Minuten</option>
+				<option value="60" selected>1 Stunde</option>
+				<option value="180">3 Stunden</option>
+				<option value="morgen">bis morgen früh</option>
+			</select>
+		</div>
+		<div class="reihe">
+			<button data-sofort="an">An</button>
+			<button data-sofort="aus" class="leise">Aus</button>
+			<button data-sofort="auto" class="leise">Automatik</button>
+		</div>
+
+		<h2>Ansicht</h2>
+		<div class="chips" id="seiten"></div>
+
+		<h2>Wochenplan</h2>
+		<div class="tage" id="tage"></div>
+		<div class="karte" style="margin-top:8px">
+			<div id="fensterListe"></div>
+			<div class="innen reihe" style="margin-top:0">
+				<button class="leise klein" id="fensterNeu">+ Zeitfenster</button>
+				<button class="leise klein" id="kopieWerktage">Auf Mo–Fr kopieren</button>
+				<button class="leise klein" id="kopieWochenende">Auf Sa–So kopieren</button>
+			</div>
+		</div>
+		<div class="karte" style="margin-top:8px">
+			<div class="feld">
+				<span>Sonst (ausserhalb der Fenster)</span>
+				<select id="standard">
+					<option value="sensor">Sensor</option>
+					<option value="an">An</option>
+					<option value="aus">Aus</option>
+				</select>
+			</div>
+		</div>
+
+		<h2>Sensor und Gesten</h2>
+		<div class="karte">
+			<div class="feld"><span>Anwesend näher als (cm)</span><input type="number" id="schwelleCm" min="20" max="400"></div>
+			<div class="feld"><span>Stehen bleiben (Sekunden)</span><input type="number" id="verweilenSek" min="0" max="30" step="0.5"></div>
+			<div class="feld"><span>Morgengruss nach Ruhe von (Std.)</span><input type="number" id="ruheStd" min="0" max="24" step="0.5"></div>
+			<div class="feld"><span>Nachlauf (Minuten)</span><input type="number" id="nachlaufMin" min="0.5" max="60" step="0.5"></div>
+			<div class="feld"><span>Gesten</span><select id="gesten"><option value="1">ein</option><option value="0">aus</option></select></div>
+			<div class="feld"><span>Hand näher als (cm)</span><input type="number" id="nahCm" min="3" max="40"></div>
+		</div>
+		<div class="info" style="margin: 8px 2px">Tippen: Hand kurz vor den Sensor halten und wegziehen, alles Unnötige weg (nochmals tippen holt es zurück). Halten: 2 Sekunden, nächste Ansicht.</div>
+
+		<div class="reihe" style="margin-top:16px">
+			<button id="speichern">Einstellungen speichern</button>
+		</div>
+	</section>
+
+	<p class="fuss">
+		Name: <span id="name"></span> · <a href="#" id="nameAendern">ändern</a> ·
+		<a href="#" id="pinVergessen">PIN neu eingeben</a>
+	</p>
+	<div id="meldung"></div>
+
+	<nav>
+		<button data-reiter="pinnwand" class="aktiv">Pinnwand</button>
+		<button data-reiter="steuerung">Steuerung</button>
+	</nav>
+
+	<script>
+		const speicher = {
+			get: (k) => { try { return localStorage.getItem(k) || ""; } catch { return ""; } },
+			set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* ohne Speicher weiter */ } }
+		};
+		const $ = (id) => document.getElementById(id);
+		const TAGE = [["mo", "Mo"], ["di", "Di"], ["mi", "Mi"], ["do", "Do"], ["fr", "Fr"], ["sa", "Sa"], ["so", "So"]];
+		const MODUSNAME = { an: "An", sensor: "Sensor", aus: "Aus" };
+		const GRUND = { zeitplan: "laut Zeitplan", standard: "Standard", manuell: "manuell", sensor: "jemand ist da", morgengruss: "Morgengruss", vorbeigehend: "nur vorbeigegangen", "niemand da": "niemand da", "sensor fehlt": "Sensor fehlt" };
+
+		let pinnwand = { todos: [], nachricht: null, sprueche: [] };
+		let steuerung = null;
+		let entwurf = null;       // bearbeitete Einstellungen, noch nicht gespeichert
+		let tagGewaehlt = TAGE[(new Date().getDay() + 6) % 7][0];
+		let reiter = speicher.get("sp-reiter") || "pinnwand";
+		let pinPause = false;     // nach «Abbrechen» beim automatischen Neuladen nicht erneut fragen
+
+		function meldung (text, ok = false) {
+			const el = $("meldung");
+			el.textContent = text;
+			el.className = ok ? "ok" : "";
+			el.style.display = "block";
+			clearTimeout(meldung.t);
+			meldung.t = setTimeout(() => (el.style.display = "none"), 3000);
+		}
+
+		function name () {
+			let n = speicher.get("pw-name");
+			if (!n) {
+				n = (prompt("Wie heisst du? (erscheint beim Eintrag)") || "").trim().slice(0, 20);
+				speicher.set("pw-name", n);
+			}
+			$("name").textContent = n || "–";
+			return n;
+		}
+
+		async function api (methode, pfad, body, nochmal = true) {
+			const res = await fetch(`api/${pfad}`, {
+				method: methode,
+				headers: { "Content-Type": "application/json", "X-Pin": speicher.get("pw-pin") },
+				body: body ? JSON.stringify(body) : undefined
+			});
+			if (res.status === 403 && nochmal) {
+				// Falsche oder fehlende PIN: einmal nachfragen und gleich nochmals versuchen
+				const pin = prompt("PIN des Spiegels:");
+				if (pin === null) {
+					pinPause = true;
+					throw new Error("Abgebrochen");
+				}
+				pinPause = false;
+				speicher.set("pw-pin", pin.trim());
+				return api(methode, pfad, body, false);
+			}
+			const json = await res.json();
+			if (!res.ok) throw new Error(json.fehler || "Fehler");
+			return json;
+		}
+
+		async function aktion (fn) {
+			try {
+				return await fn();
+			} catch (error) {
+				if (error.message !== "Abgebrochen") meldung(error.message);
+			}
+		}
+
+		// ------------------------- Reiter -------------------------
+		function reiterZeigen (r) {
+			reiter = r;
+			speicher.set("sp-reiter", r);
+			for (const b of document.querySelectorAll("nav button")) b.classList.toggle("aktiv", b.dataset.reiter === r);
+			$("seite-pinnwand").hidden = r !== "pinnwand";
+			$("seite-steuerung").hidden = r !== "steuerung";
+			laden();
+		}
+		for (const b of document.querySelectorAll("nav button")) b.onclick = () => reiterZeigen(b.dataset.reiter);
+
+		// ------------------------- Pinnwand -------------------------
+		function pinnwandZeichnen () {
+			const offen = pinnwand.todos.filter((t) => !t.erledigt);
+			const erledigt = pinnwand.todos.filter((t) => t.erledigt).sort((a, b) => b.erledigt - a.erledigt);
+			liste("offen", offen, "Alles erledigt.");
+			liste("erledigt", erledigt, "Noch nichts erledigt.");
+			spruecheZeichnen();
+
+			const box = $("aktuell");
+			const n = pinnwand.nachricht;
+			box.hidden = !n;
+			box.innerHTML = "";
+			if (n) {
+				const bis = new Date(n.bis).toLocaleString("de-CH", { weekday: "short", hour: "2-digit", minute: "2-digit" });
+				box.innerHTML = '<div class="innen aktuell"><div class="text"></div><div class="info"></div><div class="reihe"><button class="leise">Entfernen</button></div></div>';
+				box.querySelector(".text").textContent = n.text;
+				box.querySelector(".info").textContent = `${n.von || "Jemand"} · sichtbar bis ${bis}`;
+				box.querySelector("button").onclick = () => aktion(async () => {
+					pinnwand = await api("DELETE", "pinnwand/nachricht");
+					pinnwandZeichnen();
+				});
+			}
+		}
+
+		function liste (id, eintraege, leertext) {
+			const ul = $(id);
+			ul.innerHTML = "";
+			if (!eintraege.length) {
+				ul.innerHTML = `<li class="leer">${leertext}</li>`;
+				return;
+			}
+			for (const t of eintraege) {
+				const li = document.createElement("li");
+				if (t.erledigt) li.className = "erledigt";
+				li.innerHTML = '<button class="haken" aria-label="abhaken"></button><div class="text"><div></div><div class="von"></div></div><button class="weg" aria-label="löschen">×</button>';
+				li.querySelector(".text div").textContent = t.text;
+				li.querySelector(".von").textContent = t.von || "";
+				li.querySelector(".haken").onclick = () => aktion(async () => {
+					pinnwand = await api("POST", `pinnwand/todos/${t.id}`, { erledigt: !t.erledigt });
+					pinnwandZeichnen();
+				});
+				li.querySelector(".weg").onclick = () => {
+					if (confirm(`«${t.text}» löschen?`)) {
+						aktion(async () => {
+							pinnwand = await api("DELETE", `pinnwand/todos/${t.id}`);
+							pinnwandZeichnen();
+						});
+					}
+				};
+				ul.appendChild(li);
+			}
+		}
+
+		const WANNNAME = { anytime: "jederzeit", morning: "morgens", afternoon: "nachmittags", evening: "abends" };
+		function spruecheZeichnen () {
+			const ul = $("sprueche");
+			ul.innerHTML = "";
+			const sprueche = [...(pinnwand.sprueche || [])].sort((a, b) => (a.datum || "9").localeCompare(b.datum || "9"));
+			if (!sprueche.length) {
+				ul.innerHTML = '<li class="leer">Noch keine eigenen Sprüche. Die festen Mundart-Sprüche laufen trotzdem.</li>';
+				return;
+			}
+			for (const s of sprueche) {
+				const li = document.createElement("li");
+				li.innerHTML = '<div class="text"><div></div><div class="von"></div></div><button class="weg" aria-label="löschen">×</button>';
+				li.querySelector(".text div").textContent = s.text;
+				const wann = s.datum ? `nur am ${new Date(s.datum + "T12:00").toLocaleDateString("de-CH", { weekday: "short", day: "numeric", month: "short" })}` : WANNNAME[s.wann];
+				li.querySelector(".von").textContent = [wann, s.von].filter(Boolean).join(" · ");
+				li.querySelector(".weg").onclick = () => {
+					if (confirm(`«${s.text}» löschen?`)) {
+						aktion(async () => {
+							pinnwand = await api("DELETE", `pinnwand/sprueche/${s.id}`);
+							pinnwandZeichnen();
+						});
+					}
+				};
+				ul.appendChild(li);
+			}
+		}
+
+		$("spruchForm").onsubmit = (e) => {
+			e.preventDefault();
+			const text = $("spruchText").value.trim();
+			if (!text) return;
+			aktion(async () => {
+				pinnwand = await api("POST", "pinnwand/sprueche", { text, wann: $("spruchWann").value, datum: $("spruchDatum").value, von: name() });
+				$("spruchText").value = "";
+				$("spruchDatum").value = "";
+				pinnwandZeichnen();
+			});
+		};
+
+		$("todoForm").onsubmit = (e) => {
+			e.preventDefault();
+			const text = $("todoText").value.trim();
+			if (!text) return;
+			aktion(async () => {
+				pinnwand = await api("POST", "pinnwand/todos", { text, von: name() });
+				$("todoText").value = "";
+				pinnwandZeichnen();
+			});
+		};
+
+		$("nachrichtForm").onsubmit = (e) => {
+			e.preventDefault();
+			const text = $("nachrichtText").value.trim();
+			if (!text) return;
+			let stunden = $("dauer").value;
+			if (stunden === "heute") {
+				const abend = new Date();
+				abend.setHours(22, 0, 0, 0);
+				stunden = Math.max((abend - Date.now()) / 3600e3, 1);
+			}
+			aktion(async () => {
+				pinnwand = await api("POST", "pinnwand/nachricht", { text, von: name(), stunden: Number(stunden) });
+				$("nachrichtText").value = "";
+				pinnwandZeichnen();
+			});
+		};
+
+		// ------------------------- Steuerung -------------------------
+		function statusZeichnen () {
+			const s = steuerung.status;
+			$("lampe").classList.toggle("an", Boolean(s.tvAn));
+			$("tvText").textContent = s.tvAn === null ? "Unbekannt" : s.tvAn ? "Spiegel ist an" : "Spiegel ist aus";
+			let grund = `Betriebsart ${MODUSNAME[s.modus] || "–"}, ${GRUND[s.grund] || s.grund || ""}`;
+			if (s.uebersteuerung) {
+				grund += ` bis ${new Date(s.uebersteuerung.bis).toLocaleString("de-CH", { weekday: "short", hour: "2-digit", minute: "2-digit" })}`;
+			}
+			if (s.trocken) grund += " · Testbetrieb";
+			$("tvGrund").textContent = grund;
+			$("sensorText").textContent = !s.sensorOk
+				? `Sensor: ${s.sensorFehler || "keine Messung"}`
+				: `Sensor: ${s.distanz === null ? "keine Messung" : `${Math.round(s.distanz)} cm`}${s.anwesendVorSek === null ? "" : ` · zuletzt jemand da vor ${s.anwesendVorSek < 90 ? `${s.anwesendVorSek} s` : `${Math.round(s.anwesendVorSek / 60)} Min.`}`}`;
+
+			const chips = $("seiten");
+			chips.innerHTML = "";
+			(s.seite.namen || []).forEach((n, i) => {
+				const b = document.createElement("button");
+				b.className = i === s.seite.index ? "gewaehlt" : "leise";
+				b.textContent = n;
+				b.onclick = () => aktion(async () => {
+					steuerung = await api("POST", "steuerung/seite", { index: i });
+					statusZeichnen();
+				});
+				chips.appendChild(b);
+			});
+		}
+
+		function einstellungenZeichnen () {
+			const e = entwurf;
+			const tage = $("tage");
+			tage.innerHTML = "";
+			for (const [kurz, lang] of TAGE) {
+				const b = document.createElement("button");
+				b.textContent = lang;
+				b.className = kurz === tagGewaehlt ? "gewaehlt" : "";
+				b.onclick = () => { tagGewaehlt = kurz; einstellungenZeichnen(); };
+				tage.appendChild(b);
+			}
+
+			const liste = $("fensterListe");
+			liste.innerHTML = "";
+			const fenster = e.wochenplan[tagGewaehlt];
+			if (!fenster.length) liste.innerHTML = '<div class="leer">Keine Zeitfenster, es gilt den ganzen Tag «Sonst».</div>';
+			fenster.forEach((f, i) => {
+				const zeile = document.createElement("div");
+				zeile.className = "fenster";
+				zeile.innerHTML = `<input type="time" value="${f.von}"><input type="time" value="${f.bis === "24:00" ? "23:59" : f.bis}">
+					<select><option value="an">An</option><option value="sensor">Sensor</option><option value="aus">Aus</option></select>
+					<button class="weg" aria-label="löschen">×</button>`;
+				const [von, bis] = zeile.querySelectorAll("input");
+				const modus = zeile.querySelector("select");
+				modus.value = f.modus;
+				modus.className = `modus-${f.modus}`;
+				von.onchange = () => (f.von = von.value);
+				bis.onchange = () => (f.bis = bis.value === "23:59" ? "24:00" : bis.value);
+				modus.onchange = () => { f.modus = modus.value; modus.className = `modus-${f.modus}`; };
+				zeile.querySelector(".weg").onclick = () => { fenster.splice(i, 1); einstellungenZeichnen(); };
+				liste.appendChild(zeile);
+			});
+
+			$("standard").value = e.standard;
+			$("schwelleCm").value = e.sensor.schwelleCm;
+			$("nachlaufMin").value = e.sensor.nachlaufMin;
+			$("verweilenSek").value = e.sensor.verweilenSek;
+			$("ruheStd").value = e.sensor.ruheStd;
+			$("nahCm").value = e.sensor.nahCm;
+			$("gesten").value = e.gesten ? "1" : "0";
+		}
+
+		$("fensterNeu").onclick = () => {
+			entwurf.wochenplan[tagGewaehlt].push({ von: "07:00", bis: "08:00", modus: "an" });
+			einstellungenZeichnen();
+		};
+		function kopieren (ziele) {
+			for (const t of ziele) if (t !== tagGewaehlt) entwurf.wochenplan[t] = structuredClone(entwurf.wochenplan[tagGewaehlt]);
+			meldung("Kopiert, noch nicht gespeichert", true);
+		}
+		$("kopieWerktage").onclick = () => kopieren(["mo", "di", "mi", "do", "fr"]);
+		$("kopieWochenende").onclick = () => kopieren(["sa", "so"]);
+		$("standard").onchange = (e) => (entwurf.standard = e.target.value);
+		$("schwelleCm").onchange = (e) => (entwurf.sensor.schwelleCm = Number(e.target.value));
+		$("nachlaufMin").onchange = (e) => (entwurf.sensor.nachlaufMin = Number(e.target.value));
+		$("verweilenSek").onchange = (e) => (entwurf.sensor.verweilenSek = Number(e.target.value));
+		$("ruheStd").onchange = (e) => (entwurf.sensor.ruheStd = Number(e.target.value));
+		$("nahCm").onchange = (e) => (entwurf.sensor.nahCm = Number(e.target.value));
+		$("gesten").onchange = (e) => (entwurf.gesten = e.target.value === "1");
+
+		$("speichern").onclick = () => aktion(async () => {
+			steuerung = await api("POST", "steuerung/einstellungen", entwurf);
+			entwurf = structuredClone(steuerung.einstellungen);
+			statusZeichnen();
+			einstellungenZeichnen();
+			meldung("Gespeichert", true);
+		});
+
+		for (const b of document.querySelectorAll("[data-sofort]")) {
+			b.onclick = () => aktion(async () => {
+				let minuten = $("sofortDauer").value;
+				if (minuten === "morgen") {
+					const morgen = new Date();
+					morgen.setDate(morgen.getDate() + 1);
+					morgen.setHours(6, 0, 0, 0);
+					minuten = Math.round((morgen - Date.now()) / 60000);
+				}
+				steuerung = await api("POST", "steuerung/sofort", { aktion: b.dataset.sofort, minuten: Number(minuten) });
+				statusZeichnen();
+			});
+		}
+
+		// ------------------------- Laden -------------------------
+		async function laden () {
+			try {
+				if (reiter === "pinnwand") {
+					pinnwand = await api("GET", "pinnwand", undefined, !pinPause);
+					pinnwandZeichnen();
+				} else {
+					steuerung = await api("GET", "steuerung", undefined, !pinPause);
+					statusZeichnen();
+					// Bearbeitungen nicht beim regelmässigen Neuladen überschreiben
+					if (!entwurf) {
+						entwurf = structuredClone(steuerung.einstellungen);
+						einstellungenZeichnen();
+					}
+				}
+			} catch (error) {
+				if (error.message !== "Abgebrochen") meldung(error instanceof TypeError ? "Spiegel nicht erreichbar" : error.message);
+			}
+		}
+
+		$("nameAendern").onclick = (e) => {
+			e.preventDefault();
+			speicher.set("pw-name", "");
+			name();
+		};
+		$("pinVergessen").onclick = (e) => {
+			e.preventDefault();
+			speicher.set("pw-pin", "");
+			pinPause = false;
+			laden();
+		};
+
+		$("name").textContent = speicher.get("pw-name") || "–";
+		reiterZeigen(reiter);
+		setInterval(laden, 5000);
+		document.addEventListener("visibilitychange", () => { if (!document.hidden) laden(); });
+	</script>
+</body>
+</html>

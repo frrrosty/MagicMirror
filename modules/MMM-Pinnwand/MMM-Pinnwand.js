@@ -14,7 +14,7 @@ Module.register("MMM-Pinnwand", {
 	},
 
 	start () {
-		this.daten = { todos: [], nachricht: null };
+		this.daten = { todos: [], nachricht: null, sprueche: [] };
 		this.sendSocketNotification("PINNWAND_HOLEN");
 		// Ablaufende Nachrichten auch ohne neue Daten ausblenden
 		setInterval(() => this.anwenden(), 60 * 1000);
@@ -49,13 +49,39 @@ Module.register("MMM-Pinnwand", {
 		if (leer) this.hide(500, { lockString: this.identifier });
 		else this.show(500, { lockString: this.identifier });
 
-		if (this.config.anzeige === "nachricht" && this.config.spruchAusblenden) {
+		if (this.config.anzeige === "nachricht") {
 			for (const modul of MM.getModules().withClass("compliments")) {
+				this.spruecheEinsetzen(modul);
+				if (!this.config.spruchAusblenden) continue;
 				if (this.nachricht()) modul.hide(500, { lockString: this.identifier });
 				else modul.show(500, { lockString: this.identifier });
 			}
 		}
 		this.updateDom(500);
+	},
+
+	/**
+	 * Sprüche aus der App zu den festen Sprüchen aus config.js hinzufügen.
+	 * Mit Datum gelten sie nur an diesem Tag (und verdrängen dann die übrigen),
+	 * sonst zur gewählten Tageszeit oder immer.
+	 * @param {object} modul das compliments-Modul
+	 */
+	spruecheEinsetzen (modul) {
+		if (!modul.pinnwandBasis) modul.pinnwandBasis = JSON.parse(JSON.stringify(modul.config.compliments));
+		const sprueche = JSON.parse(JSON.stringify(modul.pinnwandBasis));
+		for (const s of this.daten.sprueche || []) {
+			const schluessel = s.datum || s.wann || "anytime";
+			sprueche[schluessel] = [...(sprueche[schluessel] || []), s.text];
+		}
+		// Nur bei einer Änderung sofort neu zeichnen, sonst wechselt der Spruch im eigenen Takt
+		if (JSON.stringify(sprueche) !== JSON.stringify(modul.config.compliments)) {
+			modul.config.compliments = sprueche;
+			modul.updateDom(1000);
+			// Beim Start laufen gleichzeitig die Einblend-Animationen der Seiten; ein Neuzeichnen
+			// in dieser Phase geht verloren, darum einmal verzögert nachziehen
+			if (!this.spruecheGesetzt) setTimeout(() => modul.updateDom(1000), 3000);
+			this.spruecheGesetzt = true;
+		}
 	},
 
 	getDom () {

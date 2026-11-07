@@ -76,3 +76,26 @@
 	color: var(--color-text-dimmed);
 	font-size: 14px;
 }
+
+/* Seite «Woche» (MMM-Steuerung): Wochenplan gross, mehr Platz pro Tag */
+body[data-seite="seite-woche"] .wp-tag {
+	min-height: 520px;
+}
+
+body[data-seite="seite-woche"] .wp-kopf {
+	font-size: 24px;
+}
+
+body[data-seite="seite-woche"] .wp-termin {
+	font-size: 22px;
+	line-height: 27px;
+	margin-bottom: 14px;
+}
+
+body[data-seite="seite-woche"] .wp-zeit {
+	font-size: 17px;
+}
+
+body[data-seite="seite-woche"] .wp-titel {
+	-webkit-line-clamp: 4;
+}

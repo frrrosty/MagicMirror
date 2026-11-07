@@ -9,7 +9,7 @@ Der Fernseher dient nur noch als Monitor. Die eigentliche Intelligenz liefert ei
 ```
 [ Spiegelscheibe ] -> [ Samsung TV ] <-HDMI- [ Raspberry Pi ] <-WLAN-> Internet
                          ^                        |
-                         +-------- HDMI-CEC ------+  (TV ein/aus nach Zeitplan)
+                         +-------- HDMI-CEC ------+  (TV ein/aus nach Wochenplan und Sensor)
 ```
 
 Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Ältere Modelle erhalten keine Updates mehr, und ein Browser auf dem TV lässt sich kaum zuverlässig im Dauerbetrieb steuern.
@@ -24,22 +24,26 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 | `docs/tv-ue55ku6070.md` | Daten und Einschätzung zu unserem Samsung TV |
 | `docs/software.md` | Installation von Raspberry Pi OS und MagicMirror², Arbeit per SSH |
 | `docs/einrichten.md` | Persönliche Angaben eintragen und den Spiegel anpassen |
-| `docs/bewegungssensor.md` | Anwesenheitssensor mit dem Grove Ultrasonic Ranger |
+| `docs/bewegungssensor.md` | Sensor: Anschluss, Durchgangsbereich, Gesten |
+| `docs/konzept-steuerung.md` | Konzept der Steuerzentrale mit Wochenplan, Sensor, Gesten und App |
+| `docs/sensor-test.md` | Checkliste: Steuerzentrale in Betrieb nehmen und Sensor testen |
 | `config/config.js` | MagicMirror²-Konfiguration (Deutsch, Standort Ermatingen) |
 | `config/custom.css` | Anpassungen am Erscheinungsbild für Spiegelbetrieb |
 | `config/secrets.example.js` | Vorlage für Persönliches (Kalender, Geburtstage, PIN der Pinnwand) |
 | `modules/MMM-OeV` | Eigenes Modul: nächste Abfahrten ab Ermatingen |
 | `modules/MMM-Regenradar` | Eigenes Modul: Regenradar von MeteoSchweiz auf swisstopo-Karte, letzte Stunde animiert |
-| `modules/MMM-Pinnwand` | Eigenes Modul: To-dos und Familiennachricht vom Handy (Port 8081) |
+| `modules/spiegel-app` | Handy-App und gemeinsamer Server (Port 8081, PIN-geschützt) |
+| `modules/MMM-Steuerung` | Eigenes Modul: Steuerzentrale mit Wochenplan, Sensor, Gesten und Ansichten |
+| `modules/MMM-Pinnwand` | Eigenes Modul: To-dos, Familiennachricht, Sprüche und Erinnerungen |
 | `modules/MMM-Wochenplan` | Eigenes Modul: Familientermine der nächsten sieben Tage als Raster |
 | `scripts/warten.html` | Schwarze Startseite, damit der Spiegel nach dem Einschalten schneller erscheint |
 | `scripts/install.sh` | Automatisierte Installation auf dem Raspberry Pi |
+| `scripts/sensor.py` | Liest den Ultraschallsensor, wird von der Steuerung gestartet |
+| `scripts/fernzugriff.sh` | Zugriff von unterwegs über Tailscale einrichten |
 | `scripts/update.sh` | Neuesten Stand holen und Spiegel neu laden |
 | `scripts/ausrichtung.sh` | Bild dauerhaft ins Hochformat drehen |
 | `scripts/bildschirm.sh` | TV per HDMI-CEC ein- und ausschalten |
 | `scripts/kiosk-modus.sh` | Anzeige über Chromium statt Electron (für den Pi 3) |
-| `scripts/crontab.txt` | Zeitplan für das automatische Ein- und Ausschalten |
-| `scripts/anwesenheit.py` | Ultraschallsensor: TV ein, wenn jemand davor steht |
 
 ## Vorgehen in Etappen
 
@@ -47,7 +51,7 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 2. **TV prüfen:** Gewicht, Tiefe, Anschlüsse und Stromverbrauch des Geräts festhalten (siehe `docs/hardware.md`).
 3. **Spiegel und Rahmen:** Erst bestellen, wenn die genauen Masse des Panels bekannt sind.
 4. **Montage und Dauerbetrieb:** Zeitplan, Belüftung und Kabelführung abschliessen.
-5. **Anwesenheitssensor:** Grove Ultrasonic Ranger schaltet den TV nur ein, wenn jemand davor steht (`docs/bewegungssensor.md`, `scripts/anwesenheit.py`).
+5. **Steuerzentrale:** Wochenplan, Sensor im Durchgangsbereich, Gesten und Handy-App (`docs/konzept-steuerung.md`, `docs/sensor-test.md`).
 
 ## Stand
 

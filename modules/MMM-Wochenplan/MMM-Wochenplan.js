@@ -21,6 +21,12 @@ Module.register("MMM-Wochenplan", {
 	},
 
 	notificationReceived (notification, payload) {
+		if (notification === "STEUERUNG_SEITE_GEWECHSELT") {
+			// Auf der Seite «Woche» doppelt so viele Termine pro Tag
+			this.gross = payload.klasse === "seite-woche";
+			this.updateDom(300);
+			return;
+		}
 		if (notification !== "CALENDAR_EVENTS") return;
 		const erlaubt = this.config.calendars;
 		this.events = payload
@@ -47,6 +53,7 @@ Module.register("MMM-Wochenplan", {
 		const wrapper = document.createElement("div");
 		wrapper.className = "wochenplan";
 		const jetzt = Date.now();
+		const maxPerDay = this.gross ? this.config.maxPerDay * 2 : this.config.maxPerDay;
 
 		for (const tag of this.tage()) {
 			const spalte = document.createElement("div");
@@ -60,7 +67,7 @@ Module.register("MMM-Wochenplan", {
 			spalte.appendChild(kopf);
 
 			const termine = this.termineAm(tag);
-			for (const ev of termine.slice(0, this.config.maxPerDay)) {
+			for (const ev of termine.slice(0, maxPerDay)) {
 				const eintrag = document.createElement("div");
 				eintrag.className = ev.fullDayEvent ? "wp-termin wp-ganztag" : "wp-termin";
 				if (!ev.fullDayEvent && ev.end < jetzt) eintrag.classList.add("wp-vorbei");
@@ -79,10 +86,10 @@ Module.register("MMM-Wochenplan", {
 				eintrag.appendChild(titel);
 				spalte.appendChild(eintrag);
 			}
-			if (termine.length > this.config.maxPerDay) {
+			if (termine.length > maxPerDay) {
 				const mehr = document.createElement("div");
 				mehr.className = "wp-mehr";
-				mehr.textContent = `+${termine.length - this.config.maxPerDay}`;
+				mehr.textContent = `+${termine.length - maxPerDay}`;
 				spalte.appendChild(mehr);
 			}
 			wrapper.appendChild(spalte);

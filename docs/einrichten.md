@@ -69,11 +69,14 @@ Alles Folgende steht in `config/config.js` und wird am besten am PC bearbeitet, 
 - **Haltestelle:** `HALTESTELLE` oben in der Datei. Für eine Bushaltestelle den genauen Namen aus dem SBB-Fahrplan verwenden, z. B. `"Ermatingen, Bahnhof"`.
 - **Farben und Grössen:** In `config/custom.css`. Hinter dem Spiegel wirkt alles dunkler als am normalen Bildschirm, darum Änderungen immer erst hinter der Scheibe beurteilen.
 
-## 4. Pinnwand auf dem Handy
+## 4. Spiegel-App auf dem Handy
 
-Über das Handy lassen sich To-dos und eine Nachricht an die Familie auf den Spiegel bringen. Die To-dos erscheinen unter der Uhr, eine Nachricht gross in der Mitte anstelle des Spruchs, bis sie abläuft oder entfernt wird.
+Die App hat zwei Reiter:
 
-1. In `secrets.js` eine PIN setzen, damit nicht jeder Gast im WLAN die Liste ändern kann:
+- **Pinnwand:** To-dos (erscheinen unter der Uhr), eine Nachricht an die Familie (gross in der Mitte anstelle des Spruchs, bis sie abläuft) sowie eigene **Sprüche und Erinnerungen**. Ein Spruch mit Datum erscheint nur an diesem Tag und hat dann Vorrang.
+- **Steuerung:** Status, Sofort an/aus, Ansicht wählen, Wochenplan und Sensor einstellen. Details im [Konzept](konzept-steuerung.md).
+
+1. In `secrets.js` eine PIN setzen. Ohne PIN bleibt die App gesperrt, mit PIN braucht jeder Zugriff sie, auch das Lesen:
 
 ```bash
 nano ~/magicmirror-setup/config/secrets.js
@@ -83,13 +86,15 @@ nano ~/magicmirror-setup/config/secrets.js
 
 2. Auf dem Handy im selben WLAN öffnen: `http://spiegel.local:8081`
 
-3. Im Browser «Zum Home-Bildschirm hinzufügen» wählen. Danach öffnet sich die Pinnwand wie eine App.
+3. Im Browser «Zum Home-Bildschirm hinzufügen» wählen. Danach öffnet sich die Spiegel-App wie eine App.
 
-Beim ersten Speichern fragt die Seite nach Name und PIN und merkt sich beides auf dem Handy.
+Beim ersten Öffnen fragt die App nach der PIN, beim ersten Eintrag nach dem Namen, und merkt sich beides auf dem Handy. Nach 5 falschen PINs ist die App für 5 Minuten gesperrt.
 
 Findet das Handy `spiegel.local` nicht (kommt bei manchen Android-Geräten vor), stattdessen die IP-Adresse des Pi verwenden. Sie wird auf dem Pi mit `hostname -I` angezeigt. Damit sie gleich bleibt, im Router für den Pi eine feste Adresse reservieren.
 
-Die Pinnwand läuft auf einem eigenen Port. Der eigentliche Spiegel bleibt bewusst nur auf dem Pi erreichbar, weil MagicMirror² seine ganze Konfiguration samt Kalenderlinks an jeden Browser herausgibt. Die Daten der Pinnwand liegen auf dem Pi in `~/.config/magicmirror-pinnwand.json`. Erledigte To-dos verschwinden nach sieben Tagen von selbst.
+Von unterwegs erreichbar wird die App über Tailscale, siehe [Checkliste](sensor-test.md), Schritt 7.
+
+Die App läuft auf einem eigenen Port. Der eigentliche Spiegel bleibt bewusst nur auf dem Pi erreichbar, weil MagicMirror² seine ganze Konfiguration samt Kalenderlinks an jeden Browser herausgibt. Die Daten liegen auf dem Pi in `~/.config/magicmirror-pinnwand.json` und `~/.config/magicmirror-steuerung.json`. Erledigte To-dos verschwinden nach sieben Tagen von selbst.
 
 ## 5. Regenradar
 

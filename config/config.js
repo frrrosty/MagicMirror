@@ -116,10 +116,25 @@ const modules = [
 		module: "alert"
 	},
 
+	// Steuerzentrale: Ansichten wechseln per Geste oder Handy-App (Seitenname erscheint kurz oben)
+	{
+		module: "MMM-Steuerung",
+		position: "top_center",
+		config: {
+			seiten: [
+				{ name: "Übersicht", klasse: "seite-uebersicht" },
+				{ name: "Woche", klasse: "seite-woche" },
+				{ name: "Spiegel", klasse: "seite-spiegel" }
+			],
+			rueckkehrSek: 60
+		}
+	},
+
 	// Zeit und Familie
 	{
 		module: "clock",
 		position: PLATZ.uhr,
+		classes: "seite-uebersicht seite-woche seite-spiegel",
 		config: {
 			dateFormat: "dddd, D. MMMM",
 			displaySeconds: false,
@@ -168,6 +183,7 @@ const modules = [
 	{
 		module: "weather",
 		position: PLATZ.wetter,
+		classes: "seite-uebersicht seite-woche",
 		config: {
 			weatherProvider: "openmeteo",
 			type: "current",
@@ -184,6 +200,7 @@ const modules = [
 	{
 		module: "MMM-Regenradar",
 		position: PLATZ.wetterStunden,
+		classes: "seite-uebersicht",
 		header: "Regenradar",
 		config: {
 			lat: STANDORT.lat,
@@ -197,6 +214,7 @@ const modules = [
 	{
 		module: "weather",
 		position: PLATZ.prognose,
+		classes: "seite-uebersicht",
 		header: "Prognose",
 		config: {
 			appendLocationNameToHeader: false,
@@ -216,6 +234,7 @@ const modules = [
 	{
 		module: "MMM-OeV",
 		position: PLATZ.oev,
+		classes: "seite-uebersicht",
 		header: `Zug ab ${HALTESTELLE}`,
 		config: {
 			station: HALTESTELLE,
@@ -228,6 +247,7 @@ const modules = [
 	{
 		module: "MMM-OeV",
 		position: PLATZ.oev,
+		classes: "seite-uebersicht",
 		header: "Bus ab Friedhof nach Weinfelden",
 		config: {
 			station: HALTESTELLE_BUS,
@@ -242,12 +262,14 @@ const modules = [
 	{
 		module: "MMM-Pinnwand",
 		position: PLATZ.todos,
+		classes: "seite-uebersicht seite-woche",
 		header: "Zu erledigen",
 		config: { anzeige: "todos", maxTodos: 6 }
 	},
 	{
 		module: "MMM-Pinnwand",
 		position: PLATZ.nachricht,
+		classes: "seite-uebersicht seite-woche seite-spiegel",
 		config: { anzeige: "nachricht" }
 	},
 
@@ -255,6 +277,7 @@ const modules = [
 	{
 		module: "compliments",
 		position: PLATZ.spruch,
+		classes: "seite-uebersicht seite-spiegel",
 		config: {
 			compliments: sprueche,
 			updateInterval: 60 * 1000,
@@ -269,6 +292,7 @@ const modules = [
 	{
 		module: "MMM-Wochenplan",
 		position: PLATZ.wochenplan,
+		classes: "seite-uebersicht seite-woche",
 		header: "Die nächsten sieben Tage",
 		config: {
 			days: 7,
@@ -279,6 +303,7 @@ const modules = [
 	{
 		module: "newsfeed",
 		position: "bottom_bar",
+		classes: "seite-uebersicht",
 		config: {
 			feeds: [
 				{

@@ -1,56 +1,104 @@
-/* Pinnwand: kleiner eigener Webserver fürs Handy (Standard Port 8081).
- * Bewusst getrennt vom MagicMirror²-Server, der nur lokal erreichbar bleibt:
- * Dessen /config gibt die ganze Konfiguration samt Kalenderlinks heraus.
- * Daten liegen in ~/.config/magicmirror-pinnwand.json, die PIN in secrets.js.
+/* Pinnwand: To-dos, Familiennachricht sowie Sprüche und Erinnerungen vom Handy.
+ * Die Schnittstellen hängen am gemeinsamen App-Server (modules/spiegel-app).
+ * Daten liegen in ~/.config/magicmirror-pinnwand.json.
  */
 const fs = require("node:fs");
-const http = require("node:http");
 const os = require("node:os");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const NodeHelper = require("node_helper");
 const Log = require("logger");
+const app = require("../spiegel-app/server.js");
 
 const DATEI = path.join(os.homedir(), ".config", "magicmirror-pinnwand.json");
-const SECRETS = [
-	path.join(os.homedir(), "magicmirror-setup", "config", "secrets.js"),
-	path.join(process.cwd(), "config", "secrets.js")
-];
 const ERLEDIGT_BEHALTEN_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_TODO = 120;
 const MAX_NACHRICHT = 200;
+const MAX_SPRUCH = 80;
+const WANN = ["anytime", "morning", "afternoon", "evening"];
+const MAX_TODOS = 200;
+const MAX_SPRUECHE = 100;
 
 /**
- * PIN aus secrets.js lesen, leer bedeutet ohne PIN.
- * @returns {string} PIN
+ * Heutiges Datum als JJJJ-MM-TT in Ortszeit.
+ * @returns {string} Datum
  */
-function pinLesen () {
-	for (const ort of SECRETS) {
-		try {
-			return String(require(ort).pinnwandPin || "");
-		} catch {
-			// nächsten Ort versuchen
-		}
-	}
-	return "";
-}
+const heute = () => new Date().toLocaleDateString("sv-SE");
 
 module.exports = NodeHelper.create({
 	start () {
 		Log.log(`Starting node helper for: ${this.name}`);
 		this.daten = this.laden();
-		this.pin = pinLesen();
-		if (!this.pin) Log.warn("Keine PIN in secrets.js (pinnwandPin), Änderungen sind ohne PIN möglich.");
-		const port = Number(process.env.PINNWAND_PORT || 8081);
-		this.server = http.createServer((req, res) => this.anfrage(req, res));
-		this.server.on("error", (error) => Log.error(`Server: ${error.message}`));
-		this.server.listen(port, "0.0.0.0", () => Log.log(`Fürs Handy erreichbar auf Port ${port}`));
+		this.schnittstellen(app.holen());
 		// Abgelaufene Nachrichten und alte erledigte Einträge regelmässig aufräumen
 		setInterval(() => this.aufraeumen(true), 5 * 60 * 1000);
 	},
 
-	stop () {
-		this.server?.close();
+	schnittstellen (server) {
+		server.route("GET", "/api/pinnwand", () => {
+			this.aufraeumen(false);
+			return this.daten;
+		});
+
+		server.route("POST", "/api/pinnwand/todos", (params, body) => {
+			const text = String(body.text || "").trim().slice(0, MAX_TODO);
+			if (!text) throw app.fehler(400, "Text fehlt");
+			if (this.daten.todos.length >= MAX_TODOS) throw app.fehler(400, "Zu viele Einträge, bitte erledigte löschen");
+			this.daten.todos.push({ id: crypto.randomUUID(), text, von: this.von(body), erstellt: Date.now(), erledigt: null });
+			return this.geaendert();
+		});
+
+		server.route("POST", "/api/pinnwand/todos/:id", ({ id }, body) => {
+			this.todo(id).erledigt = body.erledigt ? Date.now() : null;
+			return this.geaendert();
+		});
+
+		server.route("DELETE", "/api/pinnwand/todos/:id", ({ id }) => {
+			const todo = this.todo(id);
+			this.daten.todos = this.daten.todos.filter((t) => t !== todo);
+			return this.geaendert();
+		});
+
+		server.route("POST", "/api/pinnwand/nachricht", (params, body) => {
+			const text = String(body.text || "").trim().slice(0, MAX_NACHRICHT);
+			if (!text) throw app.fehler(400, "Text fehlt");
+			const stunden = Math.min(Math.max(Number(body.stunden) || 4, 0.5), 24 * 7);
+			this.daten.nachricht = { text, von: this.von(body), erstellt: Date.now(), bis: Date.now() + stunden * 3600 * 1000 };
+			return this.geaendert();
+		});
+
+		server.route("DELETE", "/api/pinnwand/nachricht", () => {
+			this.daten.nachricht = null;
+			return this.geaendert();
+		});
+
+		server.route("POST", "/api/pinnwand/sprueche", (params, body) => {
+			const text = String(body.text || "").trim().slice(0, MAX_SPRUCH);
+			if (!text) throw app.fehler(400, "Text fehlt");
+			const wann = WANN.includes(body.wann) ? body.wann : "anytime";
+			const datum = /^\d{4}-\d{2}-\d{2}$/.test(body.datum || "") ? body.datum : null;
+			if (datum && datum < heute()) throw app.fehler(400, "Datum liegt in der Vergangenheit");
+			if (this.daten.sprueche.length >= MAX_SPRUECHE) throw app.fehler(400, "Zu viele Sprüche");
+			this.daten.sprueche.push({ id: crypto.randomUUID(), text, wann, datum, von: this.von(body), erstellt: Date.now() });
+			return this.geaendert();
+		});
+
+		server.route("DELETE", "/api/pinnwand/sprueche/:id", ({ id }) => {
+			const vorher = this.daten.sprueche.length;
+			this.daten.sprueche = this.daten.sprueche.filter((s) => s.id !== id);
+			if (this.daten.sprueche.length === vorher) throw app.fehler(404, "Spruch nicht gefunden");
+			return this.geaendert();
+		});
+	},
+
+	von (body) {
+		return String(body.von || "").trim().slice(0, 20);
+	},
+
+	todo (id) {
+		const todo = this.daten.todos.find((t) => t.id === id);
+		if (!todo) throw app.fehler(404, "Eintrag nicht gefunden");
+		return todo;
 	},
 
 	socketNotificationReceived (notification) {
@@ -58,11 +106,13 @@ module.exports = NodeHelper.create({
 	},
 
 	laden () {
+		let daten = {};
 		try {
-			return JSON.parse(fs.readFileSync(DATEI, "utf8"));
+			daten = JSON.parse(fs.readFileSync(DATEI, "utf8"));
 		} catch {
-			return { todos: [], nachricht: null };
+			// noch keine Daten
 		}
+		return { todos: [], nachricht: null, sprueche: [], ...daten };
 	},
 
 	speichern () {
@@ -75,6 +125,8 @@ module.exports = NodeHelper.create({
 		const vorher = JSON.stringify(this.daten);
 		this.daten.todos = this.daten.todos.filter((t) => !t.erledigt || jetzt - t.erledigt < ERLEDIGT_BEHALTEN_MS);
 		if (this.daten.nachricht && this.daten.nachricht.bis < jetzt) this.daten.nachricht = null;
+		// Erinnerungen für vergangene Tage entfernen
+		this.daten.sprueche = this.daten.sprueche.filter((s) => !s.datum || s.datum >= heute());
 		if (JSON.stringify(this.daten) !== vorher) {
 			this.speichern();
 			if (mitSenden) this.senden();
@@ -89,92 +141,6 @@ module.exports = NodeHelper.create({
 	geaendert () {
 		this.speichern();
 		this.senden();
-	},
-
-	antwort (res, status, inhalt, typ = "application/json") {
-		res.writeHead(status, { "Content-Type": `${typ}; charset=utf-8`, "Cache-Control": "no-store" });
-		res.end(typ === "application/json" ? JSON.stringify(inhalt) : inhalt);
-	},
-
-	koerper (req) {
-		return new Promise((resolve, reject) => {
-			let text = "";
-			req.on("data", (teil) => {
-				text += teil;
-				if (text.length > 10000) reject(new Error("zu gross"));
-			});
-			req.on("end", () => {
-				try {
-					resolve(text ? JSON.parse(text) : {});
-				} catch {
-					reject(new Error("ungültiges JSON"));
-				}
-			});
-		});
-	},
-
-	async anfrage (req, res) {
-		const url = new URL(req.url, "http://pinnwand");
-		const teile = url.pathname.split("/").filter(Boolean);
-
-		try {
-			if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
-				return this.antwort(res, 200, fs.readFileSync(path.join(__dirname, "handy.html"), "utf8"), "text/html");
-			}
-			if (teile[0] !== "api") return this.antwort(res, 404, { fehler: "Nicht gefunden" });
-
-			if (req.method === "GET" && teile.length === 1) {
-				this.aufraeumen(false);
-				return this.antwort(res, 200, { ...this.daten, pinNoetig: Boolean(this.pin) });
-			}
-
-			// Alles, was etwas ändert, braucht die PIN
-			const pin = String(req.headers["x-pin"] || "");
-			if (this.pin && (pin.length !== this.pin.length || !crypto.timingSafeEqual(Buffer.from(pin), Buffer.from(this.pin)))) {
-				return this.antwort(res, 403, { fehler: "Falsche PIN" });
-			}
-			const body = req.method === "POST" ? await this.koerper(req) : {};
-			const von = String(body.von || "").trim().slice(0, 20);
-
-			if (teile[1] === "todos" && teile.length === 2 && req.method === "POST") {
-				const text = String(body.text || "").trim().slice(0, MAX_TODO);
-				if (!text) return this.antwort(res, 400, { fehler: "Text fehlt" });
-				this.daten.todos.push({ id: crypto.randomUUID(), text, von, erstellt: Date.now(), erledigt: null });
-				this.geaendert();
-				return this.antwort(res, 200, this.daten);
-			}
-
-			if (teile[1] === "todos" && teile.length === 3) {
-				const todo = this.daten.todos.find((t) => t.id === teile[2]);
-				if (!todo) return this.antwort(res, 404, { fehler: "Eintrag nicht gefunden" });
-				if (req.method === "DELETE") {
-					this.daten.todos = this.daten.todos.filter((t) => t !== todo);
-				} else if (req.method === "POST") {
-					todo.erledigt = body.erledigt ? Date.now() : null;
-				}
-				this.geaendert();
-				return this.antwort(res, 200, this.daten);
-			}
-
-			if (teile[1] === "nachricht" && req.method === "POST") {
-				const text = String(body.text || "").trim().slice(0, MAX_NACHRICHT);
-				if (!text) return this.antwort(res, 400, { fehler: "Text fehlt" });
-				const stunden = Math.min(Math.max(Number(body.stunden) || 4, 0.5), 24 * 7);
-				this.daten.nachricht = { text, von, erstellt: Date.now(), bis: Date.now() + stunden * 3600 * 1000 };
-				this.geaendert();
-				return this.antwort(res, 200, this.daten);
-			}
-
-			if (teile[1] === "nachricht" && req.method === "DELETE") {
-				this.daten.nachricht = null;
-				this.geaendert();
-				return this.antwort(res, 200, this.daten);
-			}
-
-			return this.antwort(res, 404, { fehler: "Nicht gefunden" });
-		} catch (error) {
-			Log.warn(`Anfrage fehlgeschlagen: ${error.message}`);
-			return this.antwort(res, 400, { fehler: error.message });
-		}
+		return this.daten;
 	}
 });
