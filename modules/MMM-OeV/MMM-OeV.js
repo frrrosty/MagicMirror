@@ -4,8 +4,9 @@ Module.register("MMM-OeV", {
 		station: "Ermatingen",
 		apiBase: "https://transport.opendata.ch/v1",
 		transportations: [],     // z. B. ["train"] oder ["bus"], leer = alle
+		destinations: [],        // nur Fahrten zu diesen Zielen, z. B. ["Weinfelden"], leer = alle
 		limit: 5,                // angezeigte Abfahrten
-		fetchLimit: 15,          // geladene Abfahrten, damit nach dem Filtern genug übrig bleiben
+		fetchLimit: 30,          // geladene Abfahrten, damit nach dem Filtern genug übrig bleiben
 		walkingTime: 0,          // Minuten bis zur Haltestelle; was nicht mehr erreichbar ist, wird ausgeblendet
 		countdownMinutes: 20,    // bis zu dieser Wartezeit «in X Min.» statt Uhrzeit
 		updateInterval: 60 * 1000

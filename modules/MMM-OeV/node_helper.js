@@ -38,14 +38,17 @@ module.exports = NodeHelper.create({
 			const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
 			if (!response.ok) throw new Error(`HTTP ${response.status}`);
 			const data = await response.json();
-			const departures = (data.stationboard || []).map((journey) => ({
-				line: lineLabel(journey),
-				category: journey.category || "",
-				to: journey.to,
-				departure: journey.stop.departureTimestamp * 1000,
-				delay: journey.stop.delay || 0,
-				platform: journey.stop.platform || ""
-			}));
+			const destinations = config.destinations.map((ziel) => ziel.toLowerCase());
+			const departures = (data.stationboard || [])
+				.filter((journey) => !destinations.length || destinations.some((ziel) => (journey.to || "").toLowerCase().includes(ziel)))
+				.map((journey) => ({
+					line: lineLabel(journey),
+					category: journey.category || "",
+					to: journey.to,
+					departure: journey.stop.departureTimestamp * 1000,
+					delay: journey.stop.delay || 0,
+					platform: journey.stop.platform || ""
+				}));
 			this.sendSocketNotification("OEV_DATA", { id, station: data.station?.name || config.station, departures });
 		} catch (error) {
 			Log.warn(`[MMM-OeV] Abfahrten für ${config.station} nicht geladen: ${error.message}`);
