@@ -43,8 +43,24 @@ else
 fi
 echo "$(date '+%F %T') Sitzung: ${WAYLAND_DISPLAY:-X11 $DISPLAY}" >> "$LOG"
 
+# Fenstergrösse ausdrücklich setzen: Per SSH gestartet übernimmt Chromium sonst
+# das Querformat, auch wenn der Bildschirm ins Hochformat gedreht ist
+FENSTER=()
+if [ -n "$WAYLAND_DISPLAY" ] && command -v wlr-randr >/dev/null; then
+	RANDR="$(wlr-randr 2>/dev/null)"
+	MODUS="$(echo "$RANDR" | grep -m1 "(current)" | grep -oE '[0-9]+x[0-9]+')"
+	DREHUNG="$(echo "$RANDR" | grep -m1 "Transform:" | awk '{print $2}')"
+	if [ -n "$MODUS" ]; then
+		B="${MODUS%x*}"
+		H="${MODUS#*x}"
+		case "$DREHUNG" in 90|270|flipped-90|flipped-270) read -r B H <<< "$H $B" ;; esac
+		FENSTER=(--window-position=0,0 "--window-size=$B,$H")
+		echo "$(date '+%F %T') Fenster: ${B}x${H}" >> "$LOG"
+	fi
+fi
+
 while true; do
-	"$BROWSER" "$PLATTFORM" --kiosk --noerrdialogs --disable-infobars --incognito \
+	"$BROWSER" "$PLATTFORM" "${FENSTER[@]}" --kiosk --noerrdialogs --disable-infobars --incognito \
 		--password-store=basic --no-first-run --disable-features=Translate,MediaRouter \
 		--disable-component-update --check-for-update-interval=31536000 \
 		"file://$REPO_DIR/scripts/warten.html" >> "$LOG" 2>&1
