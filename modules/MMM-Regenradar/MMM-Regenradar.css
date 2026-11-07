@@ -1,0 +1,61 @@
+.rr-karte {
+	position: relative;
+	overflow: hidden;
+	border-radius: 6px;
+	background: #000;
+}
+
+.rr-ebene {
+	position: absolute;
+	inset: 0;
+}
+
+.rr-ebene img {
+	position: absolute;
+	width: 256px;
+	height: 256px;
+}
+
+/* Karte abdunkeln, damit sie hinter dem Spiegel nicht hell wirkt */
+.rr-karte > .rr-ebene:first-child {
+	filter: brightness(0.9) contrast(1.1);
+}
+
+.rr-radar {
+	transition: opacity 0.3s;
+	mix-blend-mode: screen;
+}
+
+/* Eigener Standort */
+.rr-punkt {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 10px;
+	height: 10px;
+	margin: -5px 0 0 -5px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 0 0 3px rgb(255 255 255 / 30%);
+}
+
+.rr-zeit {
+	position: absolute;
+	right: 8px;
+	bottom: 6px;
+	color: var(--color-text-bright);
+	font-size: 16px;
+	text-shadow: 0 0 4px #000;
+}
+
+.rr-zeit.rr-prognose {
+	color: #9cc9f2;
+}
+
+.rr-quelle {
+	position: absolute;
+	left: 8px;
+	bottom: 6px;
+	color: #555;
+	font-size: 10px;
+}

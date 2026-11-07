@@ -9,7 +9,7 @@ So sieht der Spiegel mit der aktuellen Konfiguration aus (Beispieldaten):
 | Oben links | Uhr mit Datum und Kalenderwoche |
 | Oben rechts | Aktuelles Wetter in Ermatingen |
 | Mitte | Frei fürs Spiegelbild, darunter ein Spruch in Mundart (je nach Tageszeit, Wetter, Feiertag und Geburtstag) |
-| Unten links | Die nächsten Stunden und Prognose für fünf Tage |
+| Unten links | Regenradar der letzten Stunde (eigenes Modul `MMM-Regenradar`) und Prognose für fünf Tage |
 | Unten rechts | Zug ab Ermatingen, Bus ab Friedhof nach Weinfelden (eigenes Modul `MMM-OeV`), Entsorgung |
 | Unten, volle Breite | Wochenplan der Familie für die nächsten sieben Tage (eigenes Modul `MMM-Wochenplan`) |
 | Ganz unten | SRF News |

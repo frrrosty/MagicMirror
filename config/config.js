@@ -184,20 +184,14 @@ const modules = [
 		}
 	},
 	{
-		module: "weather",
+		module: "MMM-Regenradar",
 		position: PLATZ.wetterStunden,
-		header: "Die nächsten Stunden",
+		header: "Regenradar",
 		config: {
-			appendLocationNameToHeader: false,
-			weatherProvider: "openmeteo",
-			type: "hourly",
 			lat: STANDORT.lat,
 			lon: STANDORT.lon,
-			maxEntries: HOCH ? 4 : 6,
-			showPrecipitationProbability: true,
-			roundTemp: true,
-			fade: false,
-			colored: true
+			breite: HOCH ? 440 : 400,
+			hoehe: HOCH ? 250 : 260
 		}
 	},
 	{
