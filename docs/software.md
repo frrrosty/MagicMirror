@@ -12,9 +12,17 @@ Mit dem [Raspberry Pi Imager](https://www.raspberrypi.com/software/) auswählen:
 | Benutzer und Passwort | frei wählbar |
 | WLAN | Netzname und Passwort (Pi 3 kann nur 2,4 GHz) |
 | Zeitzone / Tastatur | Europe/Zurich / ch |
-| SSH (Reiter «Dienste») | aktivieren, Anmeldung mit Passwort |
+| SSH (Reiter «Dienste») | aktivieren, «Nur Public-Key-Authentifizierung» mit dem eigenen Schlüssel |
 
 Alles auf der Karte wird dabei überschrieben.
+
+Falls auf dem PC noch kein SSH-Schlüssel existiert, vorher einen erzeugen (Windows PowerShell oder Mac/Linux-Terminal, alle Fragen mit Enter bestätigen oder eine Passphrase setzen):
+
+```bash
+ssh-keygen -t ed25519
+```
+
+Der Imager übernimmt den öffentlichen Schlüssel (`id_ed25519.pub`) danach meist automatisch. Andernfalls den Inhalt dieser Datei ins Feld einfügen. Die Datei ohne `.pub` ist der private Schlüssel und bleibt auf dem PC.
 
 ## 2. Verbinden (am PC)
 
