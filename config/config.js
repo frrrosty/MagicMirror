@@ -4,11 +4,22 @@
  * Persönliches (Kalender, Geburtstage, Entsorgung) gehört in secrets.js,
  * siehe secrets.example.js. Ohne secrets.js läuft der Spiegel trotzdem.
  */
+/* MagicMirror² führt diese Datei ohne eigenen Pfad aus, ein relatives
+ * require("./secrets.js") findet die Datei darum nicht. Deshalb hier
+ * die möglichen Orte mit vollem Pfad.
+ */
 let secrets = {};
-try {
-	secrets = require("./secrets.js");
-} catch (e) {
-	// Ohne secrets.js fehlen nur die persönlichen Inhalte
+const secretsOrte = [
+	`${require("node:os").homedir()}/magicmirror-setup/config/secrets.js`,
+	`${process.cwd()}/config/secrets.js`
+];
+for (const ort of secretsOrte) {
+	try {
+		secrets = require(ort);
+		break;
+	} catch (e) {
+		// Nächsten Ort versuchen; ohne secrets.js fehlen nur die persönlichen Inhalte
+	}
 }
 
 // Ermatingen TG
