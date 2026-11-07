@@ -25,6 +25,7 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 | `config/custom.css` | Anpassungen am Erscheinungsbild für Spiegelbetrieb |
 | `scripts/install.sh` | Automatisierte Installation auf dem Raspberry Pi |
 | `scripts/bildschirm.sh` | TV per HDMI-CEC ein- und ausschalten |
+| `scripts/kiosk-modus.sh` | Anzeige über Chromium statt Electron (für den Pi 3) |
 | `scripts/crontab.txt` | Zeitplan für das automatische Ein- und Ausschalten |
 | `scripts/anwesenheit.py` | Ultraschallsensor: TV ein, wenn jemand davor steht |
 

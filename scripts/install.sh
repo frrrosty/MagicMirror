@@ -26,7 +26,8 @@ fi
 
 echo "==> Konfiguration verlinken"
 ln -sf "$REPO_DIR/config/config.js" "$MM_DIR/config/config.js"
-ln -sf "$REPO_DIR/config/custom.css" "$MM_DIR/css/custom.css"
+# Ab MagicMirror² 2.30 liegt custom.css im config-Ordner
+ln -sf "$REPO_DIR/config/custom.css" "$MM_DIR/config/custom.css"
 if [ ! -f "$REPO_DIR/config/secrets.js" ]; then
 	echo "    Hinweis: config/secrets.js fehlt, Familienkalender bleibt leer."
 fi

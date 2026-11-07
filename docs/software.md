@@ -52,6 +52,20 @@ sudo reboot
 
 Nach dem Neustart sollte der Spiegel von selbst auf dem TV erscheinen.
 
+## Kein Bild auf dem Pi 3
+
+Läuft der Server (`curl -s localhost:8080` liefert HTML), aber der TV zeigt nur den Desktop, kommt der eingebaute Browser Electron nicht mit dem Grafikchip zurecht. Im Protokoll steht dann `GPU process launch failed`. Abhilfe schafft die Anzeige über Chromium im Kiosk-Modus:
+
+```bash
+git -C ~/magicmirror-setup pull
+```
+
+```bash
+bash ~/magicmirror-setup/scripts/kiosk-modus.sh
+```
+
+Danach läuft MagicMirror² nur noch als Server, und Chromium zeigt den Spiegel im Vollbild an, auch nach jedem Neustart.
+
 ## Alltag per SSH
 
 Status und Fehlermeldungen anzeigen:
