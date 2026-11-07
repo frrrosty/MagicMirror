@@ -22,27 +22,28 @@ const AUSRICHTUNG = "hoch";
 const HOCH = AUSRICHTUNG === "hoch";
 
 /* Wo welches Modul erscheint. Im Hochformat bleibt das obere Drittel
- * fürs Gesicht frei, die Details sitzen in der unteren Hälfte.
+ * fürs Gesicht frei, die Details sitzen in der unteren Hälfte:
+ * links das Wetter, rechts Fahrplan und Entsorgung, darunter der Wochenplan.
  */
 const PLATZ = HOCH
 	? {
 		uhr: "top_left",
 		wetter: "top_right",
-		familie: "bottom_left",
-		wetterStunden: "bottom_right",
-		prognose: "bottom_right",
+		wetterStunden: "bottom_left",
+		prognose: "bottom_left",
 		oev: "bottom_right",
-		entsorgung: "bottom_left",
+		entsorgung: "bottom_right",
+		wochenplan: "bottom_bar",
 		spruch: "middle_center"
 	}
 	: {
 		uhr: "top_left",
 		wetter: "top_right",
-		familie: "top_left",
 		wetterStunden: "top_right",
 		prognose: "top_right",
 		oev: "bottom_left",
-		entsorgung: "bottom_left",
+		entsorgung: "bottom_right",
+		wochenplan: "bottom_bar",
 		spruch: "lower_third"
 	};
 
@@ -114,12 +115,11 @@ const modules = [
 		}
 	},
 	{
+		// Ohne Position unsichtbar: lädt die Termine nur für den Wochenplan
 		module: "calendar",
-		header: "Familie",
-		position: PLATZ.familie,
 		config: {
-			maximumEntries: 7,
-			maximumNumberOfDays: 21,
+			maximumEntries: 50,
+			maximumNumberOfDays: 14,
 			fade: true,
 			fadePoint: 0.5,
 			wrapEvents: true,
@@ -173,6 +173,7 @@ const modules = [
 		position: PLATZ.wetterStunden,
 		header: "Die nächsten Stunden",
 		config: {
+			appendLocationNameToHeader: false,
 			weatherProvider: "openmeteo",
 			type: "hourly",
 			lat: STANDORT.lat,
@@ -189,6 +190,7 @@ const modules = [
 		position: PLATZ.prognose,
 		header: "Prognose",
 		config: {
+			appendLocationNameToHeader: false,
 			weatherProvider: "openmeteo",
 			type: "forecast",
 			lat: STANDORT.lat,
@@ -241,7 +243,17 @@ const modules = [
 		}
 	},
 
-	// Ganz unten: Nachrichten
+	// Unten über die ganze Breite: Wochenplan, darunter Nachrichten
+	{
+		module: "MMM-Wochenplan",
+		position: PLATZ.wochenplan,
+		header: "Die nächsten sieben Tage",
+		config: {
+			days: 7,
+			startToday: true,
+			maxPerDay: 4
+		}
+	},
 	{
 		module: "newsfeed",
 		position: "bottom_bar",

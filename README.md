@@ -29,6 +29,8 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 | `config/custom.css` | Anpassungen am Erscheinungsbild für Spiegelbetrieb |
 | `config/secrets.example.js` | Vorlage für Persönliches (Kalender, Geburtstage, Entsorgung) |
 | `modules/MMM-OeV` | Eigenes Modul: nächste Abfahrten ab Ermatingen |
+| `modules/MMM-Wochenplan` | Eigenes Modul: Familientermine der nächsten sieben Tage als Raster |
+| `scripts/warten.html` | Schwarze Startseite, damit der Spiegel nach dem Einschalten schneller erscheint |
 | `scripts/install.sh` | Automatisierte Installation auf dem Raspberry Pi |
 | `scripts/update.sh` | Neuesten Stand holen und Spiegel neu laden |
 | `scripts/ausrichtung.sh` | Bild dauerhaft ins Hochformat drehen |

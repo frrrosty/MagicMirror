@@ -76,6 +76,12 @@
 	color: var(--color-text-dimmed);
 }
 
+/* Kalender in der rechten Spalte: Titel trotzdem linksbündig */
+.region.right .calendar .title {
+	text-align: left;
+	padding-left: 10px;
+}
+
 /* Spruch: luftig in der unteren Bildhälfte */
 .compliments .module-content {
 	font-weight: 200;

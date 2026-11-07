@@ -1,0 +1,78 @@
+.wochenplan {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 10px;
+	text-align: left;
+}
+
+.wp-tag {
+	min-height: 160px;
+	padding-top: 6px;
+	border-top: 2px solid #333;
+	overflow: hidden;
+}
+
+.wp-kopf {
+	margin-bottom: 8px;
+	color: var(--color-text);
+	font-size: 18px;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.wp-datum {
+	color: var(--color-text-dimmed);
+}
+
+.wp-wochenende .wp-kopf {
+	color: var(--color-text-dimmed);
+}
+
+/* Heute hervorheben */
+.wp-heute {
+	border-top-color: var(--color-text-bright);
+}
+
+.wp-heute .wp-kopf,
+.wp-heute .wp-datum {
+	color: var(--color-text-bright);
+}
+
+.wp-termin {
+	margin-bottom: 8px;
+	padding-left: 6px;
+	border-left: 2px solid #555;
+	font-size: 18px;
+	line-height: 22px;
+}
+
+.wp-zeit {
+	color: var(--color-text-dimmed);
+	font-size: 15px;
+}
+
+.wp-titel {
+	color: var(--color-text-bright);
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+}
+
+/* Ganztägige Termine wie Ferien oder Geburtstage als dezentes Band */
+.wp-ganztag {
+	padding: 2px 6px;
+	border-left: none;
+	border-radius: 3px;
+	background: #222;
+}
+
+.wp-vorbei {
+	opacity: 0.35;
+}
+
+.wp-mehr {
+	color: var(--color-text-dimmed);
+	font-size: 14px;
+}
