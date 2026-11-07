@@ -10,7 +10,7 @@ RUNTIME_DIR="/run/user/$(id -u)"
 
 echo "==> Systempakete"
 sudo apt-get update
-sudo apt-get install -y git curl cec-utils wlr-randr
+sudo apt-get install -y git curl cec-utils wlr-randr python3-lgpio
 
 echo "==> Node.js 22 LTS"
 if ! command -v node >/dev/null || [ "$(node -v | cut -d. -f1 | tr -d v)" -lt 22 ]; then

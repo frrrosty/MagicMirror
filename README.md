@@ -26,6 +26,7 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 | `scripts/install.sh` | Automatisierte Installation auf dem Raspberry Pi |
 | `scripts/bildschirm.sh` | TV per HDMI-CEC ein- und ausschalten |
 | `scripts/crontab.txt` | Zeitplan für das automatische Ein- und Ausschalten |
+| `scripts/anwesenheit.py` | Ultraschallsensor: TV ein, wenn jemand davor steht |
 
 ## Vorgehen in Etappen
 
@@ -33,7 +34,7 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 2. **TV prüfen:** Gewicht, Tiefe, Anschlüsse und Stromverbrauch des Geräts festhalten (siehe `docs/hardware.md`).
 3. **Spiegel und Rahmen:** Erst bestellen, wenn die genauen Masse des Panels bekannt sind.
 4. **Montage und Dauerbetrieb:** Zeitplan, Belüftung und Kabelführung abschliessen.
-5. **Bewegungssensor:** TV schaltet nur ein, wenn jemand davor steht (`docs/bewegungssensor.md`).
+5. **Anwesenheitssensor:** Grove Ultrasonic Ranger schaltet den TV nur ein, wenn jemand davor steht (`docs/bewegungssensor.md`, `scripts/anwesenheit.py`).
 
 ## Stand
 
