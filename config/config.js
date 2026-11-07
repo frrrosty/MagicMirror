@@ -32,16 +32,16 @@ const HALTESTELLE_BUS = "Ermatingen, Friedhof";
 const AUSRICHTUNG = "hoch";
 const HOCH = AUSRICHTUNG === "hoch";
 
-/* Wo welches Modul erscheint. Im Hochformat bleibt das obere Drittel
- * fürs Gesicht frei, die Details sitzen in der unteren Hälfte:
- * links das Wetter, rechts der Fahrplan, darunter der Wochenplan.
+/* Wo welches Modul erscheint. Im Hochformat bleibt die Mitte fürs Gesicht
+ * frei: oben Uhr und Wetter mit Prognose, unten links das Radar, rechts der
+ * Fahrplan, darunter der Wochenplan.
  */
 const PLATZ = HOCH
 	? {
 		uhr: "top_left",
 		wetter: "top_right",
 		wetterStunden: "bottom_left",
-		prognose: "bottom_left",
+		prognose: "top_right",
 		oev: "bottom_right",
 		wochenplan: "bottom_bar",
 		todos: "top_left",
@@ -273,7 +273,7 @@ const modules = [
 		config: {
 			days: 7,
 			startToday: true,
-			maxPerDay: 4
+			maxPerDay: 3
 		}
 	},
 	{

@@ -76,6 +76,11 @@
 	color: var(--color-text-dimmed);
 }
 
+/* Spruch und Pinnwand-Nachricht etwas über der Mitte, mit Abstand zum unteren Block */
+.region.middle.center {
+	top: 42%;
+}
+
 /* Spruch: luftig in der unteren Bildhälfte */
 .compliments .module-content {
 	font-weight: 200;
