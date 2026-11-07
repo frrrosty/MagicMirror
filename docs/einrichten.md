@@ -9,7 +9,7 @@ So sieht der Spiegel mit der aktuellen Konfiguration aus (Beispieldaten):
 | Oben links | Uhr mit Datum und Kalenderwoche |
 | Oben rechts | Aktuelles Wetter in Ermatingen |
 | Mitte | Frei fürs Spiegelbild, darunter ein Spruch in Mundart (je nach Tageszeit, Wetter, Feiertag und Geburtstag) |
-| Unten links | Regenradar der letzten Stunde (eigenes Modul `MMM-Regenradar`) und Prognose für fünf Tage |
+| Unten links | Regenradar von MeteoSchweiz der letzten Stunde (eigenes Modul `MMM-Regenradar`) und Prognose für fünf Tage |
 | Unten rechts | Zug ab Ermatingen, Bus ab Friedhof nach Weinfelden (eigenes Modul `MMM-OeV`), Entsorgung |
 | Unten, volle Breite | Wochenplan der Familie für die nächsten sieben Tage (eigenes Modul `MMM-Wochenplan`) |
 | Ganz unten | SRF News |
@@ -91,6 +91,16 @@ Beim ersten Speichern fragt die Seite nach Name und PIN und merkt sich beides au
 Findet das Handy `spiegel.local` nicht (kommt bei manchen Android-Geräten vor), stattdessen die IP-Adresse des Pi verwenden. Sie wird auf dem Pi mit `hostname -I` angezeigt. Damit sie gleich bleibt, im Router für den Pi eine feste Adresse reservieren.
 
 Die Pinnwand läuft auf einem eigenen Port. Der eigentliche Spiegel bleibt bewusst nur auf dem Pi erreichbar, weil MagicMirror² seine ganze Konfiguration samt Kalenderlinks an jeden Browser herausgibt. Die Daten der Pinnwand liegen auf dem Pi in `~/.config/magicmirror-pinnwand.json`. Erledigte To-dos verschwinden nach sieben Tagen von selbst.
+
+## 5. Regenradar
+
+Das Radar stammt von MeteoSchweiz (Open Government Data, Quelle MeteoSchweiz), die Karte von swisstopo. Ein Python-Skript auf dem Pi holt alle fünf Minuten das neueste Radarbild (1 km Auflösung) und rechnet die letzte Stunde in Bilder um. Es braucht dafür drei Pakete, die das Installationsskript mitinstalliert. Bei einer bestehenden Installation einmal von Hand:
+
+```bash
+sudo apt-get install -y python3-h5py python3-numpy python3-pil
+```
+
+Die Dateien liegen in `~/.cache/magicmirror-radar` und werden laufend aufgeräumt. Ausschnitt und Grösse lassen sich in `config/config.js` beim Modul `MMM-Regenradar` ändern (`breiteKm`, `hoeheKm`).
 
 ## Ideen für später
 

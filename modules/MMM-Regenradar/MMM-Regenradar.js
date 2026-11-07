@@ -1,22 +1,18 @@
-/* Animiertes Regenradar um den eigenen Standort. Ohne Kartenbibliothek:
- * Die Kacheln werden direkt aus den Koordinaten berechnet, das schont den Pi 3.
- * Radar: RainViewer, Karte: CARTO (dunkel) mit Daten von OpenStreetMap.
+/* Animiertes Regenradar von MeteoSchweiz um den eigenen Standort.
+ * Die Bilder rechnet radar.py auf dem Pi, der Browser spielt sie nur ab.
  */
 Module.register("MMM-Regenradar", {
 	defaults: {
 		lat: 47.6703,
 		lon: 9.0856,
-		zoom: 7,                 // RainViewer liefert kostenlos höchstens Zoomstufe 7
-		breite: 460,
-		hoehe: 260,
-		bilder: 7,               // Anzahl vergangener Bilder in der Animation (je 10 Min.)
-		bildDauer: 600,          // Millisekunden pro Bild
-		pauseAmEnde: 2500,       // Standbild auf dem neuesten Bild
-		farbe: 2,                // Farbschema von RainViewer
-		deckkraft: 0.8,
-		apiUrl: "https://api.rainviewer.com/public/weather-maps.json",
-		karte: "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
-		updateInterval: 10 * 60 * 1000
+		breiteKm: 150,           // Ausschnitt in Kilometern
+		hoeheKm: 85,
+		breite: 440,             // Grösse auf dem Spiegel in Pixeln
+		hoehe: 250,
+		bilder: 12,              // Anzahl Radarbilder (je 5 Min., also 1 Stunde)
+		bildDauer: 400,          // Millisekunden pro Bild
+		pauseAmEnde: 3000,       // Standbild auf dem neuesten Bild
+		updateInterval: 5 * 60 * 1000
 	},
 
 	getStyles () {
@@ -26,17 +22,14 @@ Module.register("MMM-Regenradar", {
 	start () {
 		this.daten = null;
 		this.fehler = false;
-		this.index = 0;
-		this.sendSocketNotification("RADAR_START", { apiUrl: this.config.apiUrl, updateInterval: this.config.updateInterval });
+		this.sendSocketNotification("RADAR_START", this.config);
 	},
 
 	socketNotificationReceived (notification, payload) {
 		if (notification === "RADAR_DATEN") {
-			const vergangen = payload.bilder.filter((b) => !b.prognose).slice(-this.config.bilder);
-			const prognose = payload.bilder.filter((b) => b.prognose);
-			this.daten = { host: payload.host, bilder: [...vergangen, ...prognose] };
+			this.daten = payload;
 			this.fehler = false;
-			this.index = vergangen.length - 1;
+			this.index = payload.bilder.length - 1;
 			this.updateDom(0);
 		} else if (notification === "RADAR_FEHLER" && !this.daten) {
 			this.fehler = true;
@@ -44,42 +37,10 @@ Module.register("MMM-Regenradar", {
 		}
 	},
 
-	/**
-	 * Weltkoordinaten in Pixeln (Web-Mercator) für die gewählte Zoomstufe.
-	 * @returns {{x: number, y: number}} Position des Standorts
-	 */
-	standortPixel () {
-		const n = 256 * 2 ** this.config.zoom;
-		const lat = this.config.lat * Math.PI / 180;
-		return {
-			x: (this.config.lon + 180) / 360 * n,
-			y: (1 - Math.log(Math.tan(lat) + 1 / Math.cos(lat)) / Math.PI) / 2 * n
-		};
-	},
-
-	kacheln (vorlage) {
-		const { breite, hoehe, zoom } = this.config;
-		const mitte = this.standortPixel();
-		const links = mitte.x - breite / 2;
-		const oben = mitte.y - hoehe / 2;
-		const ebene = document.createElement("div");
-		ebene.className = "rr-ebene";
-		for (let tx = Math.floor(links / 256); tx <= Math.floor((links + breite - 1) / 256); tx++) {
-			for (let ty = Math.floor(oben / 256); ty <= Math.floor((oben + hoehe - 1) / 256); ty++) {
-				const img = document.createElement("img");
-				img.src = vorlage.replace("{z}", zoom).replace("{x}", tx).replace("{y}", ty);
-				img.style.left = `${Math.round(tx * 256 - links)}px`;
-				img.style.top = `${Math.round(ty * 256 - oben)}px`;
-				img.onerror = () => (img.style.visibility = "hidden");
-				ebene.appendChild(img);
-			}
-		}
-		return ebene;
-	},
-
 	getDom () {
 		const wrapper = document.createElement("div");
 		wrapper.className = "regenradar";
+		clearTimeout(this.animation);
 
 		if (!this.daten) {
 			wrapper.className += " dimmed light small";
@@ -91,14 +52,18 @@ Module.register("MMM-Regenradar", {
 		karte.className = "rr-karte";
 		karte.style.width = `${this.config.breite}px`;
 		karte.style.height = `${this.config.hoehe}px`;
-		karte.appendChild(this.kacheln(this.config.karte));
 
-		this.ebenen = this.daten.bilder.map((bild, i) => {
-			const ebene = this.kacheln(`${this.daten.host}${bild.path}/256/{z}/{x}/{y}/${this.config.farbe}/1_1.png`);
-			ebene.classList.add("rr-radar");
-			ebene.style.opacity = i === this.index ? this.config.deckkraft : 0;
-			karte.appendChild(ebene);
-			return ebene;
+		const grund = document.createElement("img");
+		grund.src = this.daten.karte;
+		karte.appendChild(grund);
+
+		this.ebenen = this.daten.bilder.map((b, i) => {
+			const img = document.createElement("img");
+			img.src = b.bild;
+			img.className = "rr-radar";
+			img.style.opacity = i === this.index ? 1 : 0;
+			karte.appendChild(img);
+			return img;
 		});
 
 		const punkt = document.createElement("div");
@@ -111,7 +76,7 @@ Module.register("MMM-Regenradar", {
 
 		const quelle = document.createElement("div");
 		quelle.className = "rr-quelle";
-		quelle.textContent = "RainViewer · © CARTO · © OpenStreetMap";
+		quelle.textContent = "Quelle: MeteoSchweiz · Karte: swisstopo";
 		karte.appendChild(quelle);
 
 		wrapper.appendChild(karte);
@@ -123,25 +88,19 @@ Module.register("MMM-Regenradar", {
 	zeitZeigen () {
 		const bild = this.daten.bilder[this.index];
 		if (!bild || !this.zeitEl) return;
-		const minuten = Math.round((bild.time * 1000 - Date.now()) / 60000);
-		const relativ = minuten > 0 ? `in ${minuten} Min.` : minuten > -5 ? "jetzt" : `vor ${-minuten} Min.`;
-		this.zeitEl.textContent = `${moment(bild.time * 1000).format("HH:mm")} · ${relativ}`;
-		this.zeitEl.classList.toggle("rr-prognose", bild.prognose);
+		const minuten = Math.round((Date.now() - bild.zeit * 1000) / 60000);
+		this.zeitEl.textContent = `${moment(bild.zeit * 1000).format("HH:mm")} · ${minuten <= 7 ? "aktuell" : `vor ${minuten} Min.`}`;
 	},
 
 	animieren () {
-		clearTimeout(this.animation);
 		const anzahl = this.daten.bilder.length;
 		if (anzahl < 2) return;
-		const letztes = this.daten.bilder.filter((b) => !b.prognose).length - 1;
 		const weiter = () => {
-			const alt = this.ebenen[this.index];
+			this.ebenen[this.index].style.opacity = 0;
 			this.index = (this.index + 1) % anzahl;
-			if (alt) alt.style.opacity = 0;
-			if (this.ebenen[this.index]) this.ebenen[this.index].style.opacity = this.config.deckkraft;
+			this.ebenen[this.index].style.opacity = 1;
 			this.zeitZeigen();
-			const pause = this.index === letztes ? this.config.pauseAmEnde : this.config.bildDauer;
-			this.animation = setTimeout(weiter, pause);
+			this.animation = setTimeout(weiter, this.index === anzahl - 1 ? this.config.pauseAmEnde : this.config.bildDauer);
 		};
 		this.animation = setTimeout(weiter, this.config.pauseAmEnde);
 	}

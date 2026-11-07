@@ -191,7 +191,9 @@ const modules = [
 			lat: STANDORT.lat,
 			lon: STANDORT.lon,
 			breite: HOCH ? 440 : 400,
-			hoehe: HOCH ? 250 : 260
+			hoehe: HOCH ? 250 : 260,
+			breiteKm: 150,
+			hoeheKm: HOCH ? 85 : 98
 		}
 	},
 	{
