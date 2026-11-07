@@ -51,7 +51,7 @@ module.exports = NodeHelper.create({
 				}));
 			this.sendSocketNotification("OEV_DATA", { id, station: data.station?.name || config.station, departures });
 		} catch (error) {
-			Log.warn(`[MMM-OeV] Abfahrten für ${config.station} nicht geladen: ${error.message}`);
+			Log.warn(`Abfahrten für ${config.station} nicht geladen: ${error.message}`);
 			this.sendSocketNotification("OEV_ERROR", { id });
 		}
 	}

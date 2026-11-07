@@ -70,6 +70,28 @@ Alles Folgende steht in `config/config.js` und wird am besten am PC bearbeitet, 
 - **Haltestelle:** `HALTESTELLE` oben in der Datei. Für eine Bushaltestelle den genauen Namen aus dem SBB-Fahrplan verwenden, z. B. `"Ermatingen, Bahnhof"`.
 - **Farben und Grössen:** In `config/custom.css`. Hinter dem Spiegel wirkt alles dunkler als am normalen Bildschirm, darum Änderungen immer erst hinter der Scheibe beurteilen.
 
+## 4. Pinnwand auf dem Handy
+
+Über das Handy lassen sich To-dos und eine Nachricht an die Familie auf den Spiegel bringen. Die To-dos erscheinen unter der Uhr, eine Nachricht gross in der Mitte anstelle des Spruchs, bis sie abläuft oder entfernt wird.
+
+1. In `secrets.js` eine PIN setzen, damit nicht jeder Gast im WLAN die Liste ändern kann:
+
+```bash
+nano ~/magicmirror-setup/config/secrets.js
+```
+
+   Dort die Zeile `pinnwandPin: "1234",` mit eigener PIN ergänzen und mit `pm2 restart MagicMirror` neu laden.
+
+2. Auf dem Handy im selben WLAN öffnen: `http://spiegel.local:8081`
+
+3. Im Browser «Zum Home-Bildschirm hinzufügen» wählen. Danach öffnet sich die Pinnwand wie eine App.
+
+Beim ersten Speichern fragt die Seite nach Name und PIN und merkt sich beides auf dem Handy.
+
+Findet das Handy `spiegel.local` nicht (kommt bei manchen Android-Geräten vor), stattdessen die IP-Adresse des Pi verwenden. Sie wird auf dem Pi mit `hostname -I` angezeigt. Damit sie gleich bleibt, im Router für den Pi eine feste Adresse reservieren.
+
+Die Pinnwand läuft auf einem eigenen Port. Der eigentliche Spiegel bleibt bewusst nur auf dem Pi erreichbar, weil MagicMirror² seine ganze Konfiguration samt Kalenderlinks an jeden Browser herausgibt. Die Daten der Pinnwand liegen auf dem Pi in `~/.config/magicmirror-pinnwand.json`. Erledigte To-dos verschwinden nach sieben Tagen von selbst.
+
 ## Ideen für später
 
 - Thurgauer Schulferien als eigener Kalender

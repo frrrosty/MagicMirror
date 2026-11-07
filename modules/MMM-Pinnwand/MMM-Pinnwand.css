@@ -1,0 +1,42 @@
+.pinnwand-todos ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pinnwand-todos li {
+	position: relative;
+	padding-left: 1.2em;
+	margin-bottom: 4px;
+	color: var(--color-text-bright);
+	font-size: 22px;
+	line-height: 28px;
+}
+
+/* Leerer Kreis wie ein Kästchen zum Abhaken */
+.pinnwand-todos li::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 7px;
+	width: 12px;
+	height: 12px;
+	border: 2px solid var(--color-text-dimmed);
+	border-radius: 50%;
+}
+
+.pw-mehr {
+	font-size: 16px;
+}
+
+.pw-nachricht {
+	font-size: 54px;
+	line-height: 64px;
+	font-weight: 300;
+}
+
+.pw-von {
+	margin-top: 8px;
+	font-size: 20px;
+	letter-spacing: 0.05em;
+}

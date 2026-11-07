@@ -45,6 +45,8 @@ const PLATZ = HOCH
 		oev: "bottom_right",
 		entsorgung: "bottom_right",
 		wochenplan: "bottom_bar",
+		todos: "top_left",
+		nachricht: "middle_center",
 		spruch: "middle_center"
 	}
 	: {
@@ -55,6 +57,8 @@ const PLATZ = HOCH
 		oev: "bottom_left",
 		entsorgung: "bottom_right",
 		wochenplan: "bottom_bar",
+		todos: "top_left",
+		nachricht: "lower_third",
 		spruch: "lower_third"
 	};
 
@@ -238,6 +242,19 @@ const modules = [
 			limit: 3,
 			walkingTime: secrets.gehzeitHaltestelle || 0
 		}
+	},
+
+	// Pinnwand vom Handy: To-dos unter der Uhr, Nachricht anstelle des Spruchs
+	{
+		module: "MMM-Pinnwand",
+		position: PLATZ.todos,
+		header: "Zu erledigen",
+		config: { anzeige: "todos", maxTodos: 6 }
+	},
+	{
+		module: "MMM-Pinnwand",
+		position: PLATZ.nachricht,
+		config: { anzeige: "nachricht" }
 	},
 
 	// Spruch, unterhalb des Spiegelbilds

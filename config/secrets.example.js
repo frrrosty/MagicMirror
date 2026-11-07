@@ -24,6 +24,9 @@ module.exports = {
 	// ICS-Link des Entsorgungskalenders der Gemeinde (Kehricht, Papier, Karton, Grüngut)
 	entsorgung: "",
 
+	// PIN für die Pinnwand auf dem Handy (Port 8081); leer = ohne PIN
+	pinnwandPin: "",
+
 	// Gehzeit zur Haltestelle in Minuten; Verbindungen, die nicht mehr erreichbar sind, werden ausgeblendet
 	gehzeitHaltestelle: 5
 };
