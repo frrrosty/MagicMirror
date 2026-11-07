@@ -33,9 +33,18 @@ if [ -z "${WAYLAND_DISPLAY:-}" ]; then
 	WAYLAND_DISPLAY="$(ls "$XDG_RUNTIME_DIR" 2>/dev/null | grep -m1 -E '^wayland-[0-9]+$')"
 	export WAYLAND_DISPLAY
 fi
+# Grafiksystem ausdrücklich wählen: Per SSH gestartet hält Chromium die Sitzung
+# sonst für eine Textkonsole und versucht vergeblich X11
+if [ -n "$WAYLAND_DISPLAY" ]; then
+	PLATTFORM="--ozone-platform=wayland"
+else
+	export DISPLAY="${DISPLAY:-:0}"
+	PLATTFORM="--ozone-platform=x11"
+fi
+echo "$(date '+%F %T') Sitzung: ${WAYLAND_DISPLAY:-X11 $DISPLAY}" >> "$LOG"
 
 while true; do
-	"$BROWSER" --kiosk --noerrdialogs --disable-infobars --incognito \
+	"$BROWSER" "$PLATTFORM" --kiosk --noerrdialogs --disable-infobars --incognito \
 		--password-store=basic --no-first-run --disable-features=Translate,MediaRouter \
 		--disable-component-update --check-for-update-interval=31536000 \
 		"file://$REPO_DIR/scripts/warten.html" >> "$LOG" 2>&1
