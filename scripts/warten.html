@@ -1,0 +1,29 @@
+<!doctype html>
+<!-- Schwarze Warteseite für den Kiosk: Chromium startet damit sofort und
+     wechselt zum Spiegel, sobald der MagicMirror²-Server antwortet. -->
+<html lang="de">
+<head>
+	<meta charset="utf-8">
+	<title>Spiegel startet</title>
+	<style>
+		html, body { margin: 0; height: 100%; background: #000; cursor: none; }
+		body { display: flex; align-items: center; justify-content: center; }
+		p { color: #333; font: 300 28px sans-serif; letter-spacing: 0.1em; }
+	</style>
+</head>
+<body>
+	<p>Spiegel startet …</p>
+	<script>
+		const ZIEL = "http://localhost:8080/";
+		async function pruefen () {
+			try {
+				await fetch(ZIEL, { mode: "no-cors", cache: "no-store" });
+				location.replace(ZIEL);
+			} catch {
+				setTimeout(pruefen, 1500);
+			}
+		}
+		pruefen();
+	</script>
+</body>
+</html>

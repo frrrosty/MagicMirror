@@ -79,7 +79,7 @@ cat > "$HOME/.config/autostart/magicmirror.desktop" <<EOF
 [Desktop Entry]
 Type=Application
 Name=MagicMirror
-Exec=sh -c "sleep 5 && pm2 resurrect"
+Exec=pm2 resurrect
 EOF
 
 chmod +x "$REPO_DIR"/scripts/*.sh "$REPO_DIR"/scripts/*.py
