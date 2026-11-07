@@ -1,7 +1,7 @@
 /* MagicMirror² Konfiguration für den Familienspiegel
  *
  * Dokumentation: https://docs.magicmirror.builders/configuration/introduction.html
- * Persönliches (Kalender, Geburtstage, Entsorgung) gehört in secrets.js,
+ * Persönliches (Kalender, Geburtstage, PIN) gehört in secrets.js,
  * siehe secrets.example.js. Ohne secrets.js läuft der Spiegel trotzdem.
  */
 /* MagicMirror² führt diese Datei ohne eigenen Pfad aus, ein relatives
@@ -34,7 +34,7 @@ const HOCH = AUSRICHTUNG === "hoch";
 
 /* Wo welches Modul erscheint. Im Hochformat bleibt das obere Drittel
  * fürs Gesicht frei, die Details sitzen in der unteren Hälfte:
- * links das Wetter, rechts Fahrplan und Entsorgung, darunter der Wochenplan.
+ * links das Wetter, rechts der Fahrplan, darunter der Wochenplan.
  */
 const PLATZ = HOCH
 	? {
@@ -43,7 +43,6 @@ const PLATZ = HOCH
 		wetterStunden: "bottom_left",
 		prognose: "bottom_left",
 		oev: "bottom_right",
-		entsorgung: "bottom_right",
 		wochenplan: "bottom_bar",
 		todos: "top_left",
 		nachricht: "middle_center",
@@ -55,7 +54,6 @@ const PLATZ = HOCH
 		wetterStunden: "top_right",
 		prognose: "top_right",
 		oev: "bottom_left",
-		entsorgung: "bottom_right",
 		wochenplan: "bottom_bar",
 		todos: "top_left",
 		nachricht: "lower_third",
@@ -296,32 +294,6 @@ const modules = [
 		}
 	}
 ];
-
-// Entsorgungskalender der Gemeinde, nur wenn in secrets.js hinterlegt
-if (secrets.entsorgung) {
-	modules.splice(modules.findIndex((m) => m.module === "compliments"), 0, {
-		module: "calendar",
-		header: "Entsorgung",
-		position: PLATZ.entsorgung,
-		config: {
-			maximumEntries: 3,
-			maximumNumberOfDays: 14,
-			fade: false,
-			dateFormat: "dd, D. MMM",
-			fullDayEventDateFormat: "dd, D. MMM",
-			timeFormat: "absolute",
-			showEnd: false,
-			broadcastEvents: false,
-			customEvents: [
-				{ keyword: "Papier", symbol: "newspaper" },
-				{ keyword: "Karton", symbol: "box" },
-				{ keyword: "Grün", symbol: "leaf" },
-				{ keyword: "Kehricht", symbol: "trash" }
-			],
-			calendars: [{ name: "Entsorgung", symbol: "recycle", url: secrets.entsorgung }]
-		}
-	});
-}
 
 const config = {
 	address: "localhost",

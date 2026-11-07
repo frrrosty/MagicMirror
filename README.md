@@ -27,7 +27,7 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 | `docs/bewegungssensor.md` | Anwesenheitssensor mit dem Grove Ultrasonic Ranger |
 | `config/config.js` | MagicMirror²-Konfiguration (Deutsch, Standort Ermatingen) |
 | `config/custom.css` | Anpassungen am Erscheinungsbild für Spiegelbetrieb |
-| `config/secrets.example.js` | Vorlage für Persönliches (Kalender, Geburtstage, Entsorgung) |
+| `config/secrets.example.js` | Vorlage für Persönliches (Kalender, Geburtstage, PIN der Pinnwand) |
 | `modules/MMM-OeV` | Eigenes Modul: nächste Abfahrten ab Ermatingen |
 | `modules/MMM-Regenradar` | Eigenes Modul: Regenradar von MeteoSchweiz auf swisstopo-Karte, letzte Stunde animiert |
 | `modules/MMM-Pinnwand` | Eigenes Modul: To-dos und Familiennachricht vom Handy (Port 8081) |

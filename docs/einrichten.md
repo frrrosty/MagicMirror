@@ -10,7 +10,7 @@ So sieht der Spiegel mit der aktuellen Konfiguration aus (Beispieldaten):
 | Oben rechts | Aktuelles Wetter in Ermatingen |
 | Mitte | Frei fürs Spiegelbild, darunter ein Spruch in Mundart (je nach Tageszeit, Wetter, Feiertag und Geburtstag) |
 | Unten links | Regenradar von MeteoSchweiz der letzten Stunde (eigenes Modul `MMM-Regenradar`) und Prognose für fünf Tage |
-| Unten rechts | Zug ab Ermatingen, Bus ab Friedhof nach Weinfelden (eigenes Modul `MMM-OeV`), Entsorgung |
+| Unten rechts | Zug ab Ermatingen, Bus ab Friedhof nach Weinfelden (eigenes Modul `MMM-OeV`) |
 | Unten, volle Breite | Wochenplan der Familie für die nächsten sieben Tage (eigenes Modul `MMM-Wochenplan`) |
 | Ganz unten | SRF News |
 
@@ -52,7 +52,6 @@ nano ~/magicmirror-setup/config/secrets.js
 | --- | --- | --- |
 | `calendars` | ICS-Link des Outlook-Kalenders | Outlook.com: Einstellungen > Kalender > Freigegebene Kalender > Kalender veröffentlichen |
 | `geburtstage` | Namen und Daten der Familie | Format `{ name: "Anna", datum: "03-15" }` |
-| `entsorgung` | ICS-Link des Abfallkalenders | Website der Gemeinde Ermatingen, Rubrik Entsorgung, nach «Kalender abonnieren» oder «iCal» suchen |
 | `gehzeitHaltestelle` | Minuten bis zum Bahnhof | Verbindungen, die man nicht mehr erreicht, werden ausgeblendet |
 
 Danach neu laden:

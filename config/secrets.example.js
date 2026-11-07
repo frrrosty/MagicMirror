@@ -21,9 +21,6 @@ module.exports = {
 		// { name: "Ben", datum: "09-02" }
 	],
 
-	// ICS-Link des Entsorgungskalenders der Gemeinde (Kehricht, Papier, Karton, Grüngut)
-	entsorgung: "",
-
 	// PIN für die Pinnwand auf dem Handy (Port 8081); leer = ohne PIN
 	pinnwandPin: "",
 
