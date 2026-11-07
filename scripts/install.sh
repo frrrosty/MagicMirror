@@ -43,8 +43,14 @@ sudo raspi-config nonint do_boot_behaviour B4
 sudo raspi-config nonint do_blanking 1
 # 1080p statt 4K ausgeben (wirkt nach dem nächsten Neustart)
 CMDLINE=/boot/firmware/cmdline.txt
-if [ -f "$CMDLINE" ] && ! grep -q "video=HDMI-A-1" "$CMDLINE"; then
-	sudo sed -i '1 s/$/ video=HDMI-A-1:1920x1080@60/' "$CMDLINE"
+# Das «D» hält den HDMI-Ausgang aktiv, auch wenn der TV im Standby ist.
+# Sonst verschwindet der Bildschirm aus der Sitzung und der Kiosk-Browser verliert sein Fenster.
+if [ -f "$CMDLINE" ]; then
+	if grep -q "video=HDMI-A-1" "$CMDLINE"; then
+		sudo sed -i 's/video=HDMI-A-1:1920x1080@60D\?/video=HDMI-A-1:1920x1080@60D/' "$CMDLINE"
+	else
+		sudo sed -i '1 s/$/ video=HDMI-A-1:1920x1080@60D/' "$CMDLINE"
+	fi
 fi
 # Spiegel hängt im Hochformat; mit AUSRICHTUNG=quer oder hoch-links übersteuerbar
 bash "$REPO_DIR/scripts/ausrichtung.sh" "${AUSRICHTUNG:-hoch}"
