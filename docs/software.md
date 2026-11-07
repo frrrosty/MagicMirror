@@ -1,17 +1,32 @@
 # Software
 
-## 1. Raspberry Pi OS vorbereiten
+Die ganze Einrichtung läuft vom Desktop-PC aus per SSH. Am Pi braucht es weder Tastatur noch Maus, nur HDMI zum TV, Strom und Netzwerk.
 
-1. Mit dem [Raspberry Pi Imager](https://www.raspberrypi.com/software/) «Raspberry Pi OS (64-bit)» mit Desktop auf die microSD-Karte schreiben.
-2. Im Imager unter «Einstellungen» bereits Hostname (z. B. `spiegel`), Benutzer, WLAN, Zeitzone `Europe/Zurich` und SSH aktivieren.
-3. Karte einsetzen, Pi per HDMI am Samsung TV anschliessen und starten.
-4. Per SSH verbinden:
+## 1. SD-Karte vorbereiten (am PC)
+
+Mit dem [Raspberry Pi Imager](https://www.raspberrypi.com/software/) auswählen: Gerät «Raspberry Pi 3», Betriebssystem «Raspberry Pi OS (64-bit)» **mit Desktop** (nicht Lite). Bei der Frage nach angepassten Einstellungen «Ja» wählen und eintragen:
+
+| Einstellung | Wert |
+| --- | --- |
+| Hostname | `spiegel` |
+| Benutzer und Passwort | frei wählbar |
+| WLAN | Netzname und Passwort (Pi 3 kann nur 2,4 GHz) |
+| Zeitzone / Tastatur | Europe/Zurich / ch |
+| SSH (Reiter «Dienste») | aktivieren, Anmeldung mit Passwort |
+
+Alles auf der Karte wird dabei überschrieben.
+
+## 2. Verbinden (am PC)
+
+Karte in den Pi, HDMI an den TV, Strom anschliessen. Nach zwei bis drei Minuten vom PC aus (Windows: PowerShell, Mac/Linux: Terminal) verbinden, Benutzername anpassen:
 
 ```bash
-ssh pi@spiegel.local
+ssh deinbenutzer@spiegel.local
 ```
 
-## 2. Dieses Repository und MagicMirror² installieren
+Klappt `spiegel.local` nicht, im Router nach der IP-Adresse des Geräts «spiegel» suchen und stattdessen diese verwenden.
+
+## 3. Installieren (per SSH)
 
 ```bash
 git clone https://github.com/frrrosty/MagicMirror.git ~/magicmirror-setup
@@ -21,17 +36,53 @@ git clone https://github.com/frrrosty/MagicMirror.git ~/magicmirror-setup
 bash ~/magicmirror-setup/scripts/install.sh
 ```
 
-Das Skript installiert Node.js, lädt MagicMirror² nach `~/MagicMirror`, verlinkt die Konfiguration aus diesem Repository und richtet den Autostart mit `pm2` ein. Änderungen an `config/config.js` werden danach mit einem Neustart aktiv:
+Das dauert auf dem Pi 3 etwa 20 bis 40 Minuten. Das Skript installiert Node.js und MagicMirror², verlinkt die Konfiguration, schaltet den Bildschirmschoner aus, stellt die Ausgabe auf 1080p und richtet den Autostart ein. Wichtig: Der Desktop muss auf dem TV angemeldet sein, was nach dem ersten Start automatisch der Fall ist. Zum Schluss einmal neu starten:
+
+```bash
+sudo reboot
+```
+
+Nach dem Neustart sollte der Spiegel von selbst auf dem TV erscheinen.
+
+## Alltag per SSH
+
+Status und Fehlermeldungen anzeigen:
+
+```bash
+pm2 status
+```
+
+```bash
+pm2 logs MagicMirror
+```
+
+Konfiguration bearbeiten (speichern mit Ctrl+O, beenden mit Ctrl+X) und danach neu laden:
+
+```bash
+nano ~/magicmirror-setup/config/config.js
+```
 
 ```bash
 pm2 restart MagicMirror
 ```
 
-## 3. Auflösung und Ausrichtung
+Neue Version dieses Repositorys holen:
 
-Unser Samsung UE55KU6070 ist ein 4K-Gerät. Für den Spiegel reicht 1920 × 1080 völlig: *Einstellungen > Screen Configuration*, Ausgang `HDMI-A-1` anklicken und unter *Resolution* `1920x1080` wählen.
+```bash
+cd ~/magicmirror-setup && git pull && pm2 restart MagicMirror
+```
 
-Bei Hochformat im selben Menü unter *Orientation* «left» oder «right» wählen. Ein Fernseher im Hochformat sollte vorher auf Eignung geprüft werden, da nicht jeder Standfuss bzw. jede VESA-Halterung dafür gedacht ist.
+Bequemer geht das Bearbeiten mit Visual Studio Code und der Erweiterung «Remote - SSH». Damit öffnest du den Ordner auf dem Pi direkt im Editor am PC.
+
+## Ausrichtung (falls Hochformat)
+
+Solange Hoch- oder Querformat nicht entschieden ist, bleibt das Bild quer. Für einen Test im Hochformat per SSH:
+
+```bash
+WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/run/user/$(id -u) wlr-randr --output HDMI-A-1 --transform 90
+```
+
+Das gilt nur bis zum nächsten Neustart. Die dauerhafte Einstellung richten wir ein, sobald der Entscheid gefallen ist.
 
 ## 4. TV automatisch ein- und ausschalten
 
@@ -64,4 +115,16 @@ Für den Familienkalender wird eine ICS-Adresse benötigt. Unser Kalender liegt 
 
 Ein Kalender, der nur mit einem anderen Konto geteilt wurde, lässt sich so nicht abonnieren. Die Veröffentlichung muss die Person vornehmen, der der Kalender gehört. Bei mehreren Kalendern (z. B. je einer pro Elternteil) wird jeder einzeln veröffentlicht und eingetragen. Outlook aktualisiert veröffentlichte Kalender mit etwas Verzögerung, neue Termine erscheinen darum nicht sofort.
 
-Die Adresse wird in `config/config.js` beim Modul `calendar` eingetragen. Solche Links sind wie Passwörter zu behandeln und sollten nicht in einem öffentlichen Repository landen. Darum liest die Konfiguration sie aus der Datei `config/secrets.js`, die per `.gitignore` ausgeschlossen ist. Eine Vorlage liegt unter `config/secrets.example.js`.
+Solche Links sind wie Passwörter zu behandeln und dürfen nicht in dieses öffentliche Repository gelangen. Darum liest die Konfiguration sie aus der Datei `config/secrets.js`, die per `.gitignore` ausgeschlossen ist und nur auf dem Pi existiert. Per SSH anlegen und den ICS-Link eintragen:
+
+```bash
+cp ~/magicmirror-setup/config/secrets.example.js ~/magicmirror-setup/config/secrets.js
+```
+
+```bash
+nano ~/magicmirror-setup/config/secrets.js
+```
+
+```bash
+pm2 restart MagicMirror
+```
