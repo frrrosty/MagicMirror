@@ -20,8 +20,10 @@ chmod +x "$REPO_DIR"/scripts/*.sh "$REPO_DIR"/scripts/*.py
 echo "==> Spiegel neu laden"
 pm2 restart MagicMirror
 # Im Kiosk-Modus die Seite neu öffnen, damit neue Module und Styles erscheinen
-if pgrep -f -- "--kiosk" >/dev/null; then
+if [ -f "$HOME/.config/autostart/magicmirror-kiosk.desktop" ]; then
 	pkill -f -- "--kiosk" || true
+	# Chromium lässt nur eine Instanz zu: warten, bis die alte wirklich beendet ist
+	for _ in $(seq 20); do pgrep -f -- "--kiosk" >/dev/null || break; sleep 0.5; done
 	RUNTIME_DIR="/run/user/$(id -u)"
 	WL_SOCKET="$(ls "$RUNTIME_DIR" 2>/dev/null | grep -m1 -E '^wayland-[0-9]+$' || true)"
 	EXEC="$(sed -n 's/^Exec=sh -c //p' "$HOME/.config/autostart/magicmirror-kiosk.desktop" | sed "s/^'//; s/'$//")"

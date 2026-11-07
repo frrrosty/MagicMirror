@@ -36,7 +36,8 @@ echo "==> Kiosk jetzt sofort starten"
 WL_SOCKET="$(ls "$RUNTIME_DIR" 2>/dev/null | grep -m1 -E '^wayland-[0-9]+$' || true)"
 if [ -n "$WL_SOCKET" ]; then
 	pkill -f -- "--kiosk" >/dev/null 2>&1 || true
-	sleep 1
+	# Chromium lässt nur eine Instanz zu: warten, bis die alte wirklich beendet ist
+	for _ in $(seq 20); do pgrep -f -- "--kiosk" >/dev/null || break; sleep 0.5; done
 	WAYLAND_DISPLAY="$WL_SOCKET" XDG_RUNTIME_DIR="$RUNTIME_DIR" \
 		setsid sh -c "$KIOSK_CMD" >/dev/null 2>&1 < /dev/null &
 	echo "    Der Spiegel sollte in Kürze auf dem TV erscheinen."
