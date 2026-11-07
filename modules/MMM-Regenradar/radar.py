@@ -19,7 +19,7 @@ from pathlib import Path
 
 import h5py
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 STAC = "https://data.geo.admin.ch/api/stac/v1/collections/ch.meteoschweiz.ogd-radar-precip/items/{tag}-ch"
 WMS = ("https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap"
@@ -100,16 +100,31 @@ def wms_bild(ebene, ausschnitt, groesse):
 	return Image.open(io.BytesIO(laden(url)))
 
 
+def seen_maske(ausschnitt, groesse):
+	"""Deckung der Seeflächen (0 bis 1). Die Gewässer von swisstopo enthalten den ganzen
+	Bodensee, aber auch alle Bäche: Ein Öffnen (erst schmälern, dann verbreitern) entfernt
+	die dünnen Linien. Die Seen des BAFU ergänzen kleine Schweizer Seen in voller Form."""
+	maske = np.zeros((groesse[1], groesse[0]), dtype="float32")
+	try:
+		gewaesser = wms_bild("ch.swisstopo.vec200-hydrography", ausschnitt, groesse).convert("RGBA").split()[3]
+		flaechen = gewaesser.filter(ImageFilter.MinFilter(5)).filter(ImageFilter.MaxFilter(5))
+		maske = np.maximum(maske, np.asarray(flaechen, dtype="float32") / 255)
+	except Exception as fehler:
+		print(f"Gewässer nicht geladen: {fehler}", file=sys.stderr)
+	try:
+		seen = wms_bild("ch.bafu.vec25-seen", ausschnitt, groesse).convert("RGBA").split()[3]
+		maske = np.maximum(maske, np.asarray(seen, dtype="float32") / 255)
+	except Exception as fehler:
+		print(f"Seen nicht geladen: {fehler}", file=sys.stderr)
+	return maske
+
+
 def karte(ziel, ausschnitt, groesse):
 	"""Graue Landeskarte invertiert und abgedunkelt, Seen dezent dunkelblau."""
 	grau = np.asarray(wms_bild("ch.swisstopo.pixelkarte-grau", ausschnitt, groesse).convert("L"), dtype="float32")
 	bild = np.repeat((12 + (255 - grau) * 0.42)[..., None], 3, axis=2)
-	try:
-		seen = np.asarray(wms_bild("ch.bafu.vec25-seen", ausschnitt, groesse).convert("RGBA"), dtype="float32")
-		deckung = seen[..., 3:4] / 255 * 0.85
-		bild = bild * (1 - deckung) + np.array([20, 45, 80]) * deckung
-	except Exception as fehler:
-		print(f"Seen nicht geladen: {fehler}", file=sys.stderr)
+	deckung = seen_maske(ausschnitt, groesse)[..., None] * 0.85
+	bild = bild * (1 - deckung) + np.array([20, 45, 80]) * deckung
 	Image.fromarray(bild.clip(0, 255).astype("uint8"), "RGB").save(ziel, optimize=True)
 
 
@@ -125,7 +140,7 @@ def main():
 
 	ordner.mkdir(parents=True, exist_ok=True)
 	(ordner / "h5").mkdir(exist_ok=True)
-	kennung = f"{ausschnitt}-{groesse}"
+	kennung = f"karte-v2-{ausschnitt}-{groesse}"
 
 	alt = {}
 	meta_datei = ordner / "meta.json"
