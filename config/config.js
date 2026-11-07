@@ -219,7 +219,7 @@ const modules = [
 	{
 		module: "MMM-OeV",
 		position: PLATZ.oev,
-		header: "Bus nach Weinfelden",
+		header: "Bus ab Friedhof nach Weinfelden",
 		config: {
 			station: HALTESTELLE_BUS,
 			transportations: ["bus"],
