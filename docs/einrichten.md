@@ -6,11 +6,14 @@ So sieht der Spiegel mit der aktuellen Konfiguration aus (Beispieldaten):
 
 | Bereich | Inhalt |
 | --- | --- |
-| Oben links | Uhr mit Datum und Kalenderwoche, darunter der Familienkalender mit Symbolen je nach Termin |
-| Oben rechts | Aktuelles Wetter in Ermatingen, die nächsten Stunden mit Regenwahrscheinlichkeit, Prognose für fünf Tage |
+| Oben links | Uhr mit Datum und Kalenderwoche |
+| Oben rechts | Aktuelles Wetter in Ermatingen |
 | Mitte | Frei fürs Spiegelbild, darunter ein Spruch in Mundart (je nach Tageszeit, Wetter, Feiertag und Geburtstag) |
-| Unten links | Nächste Abfahrten ab Ermatingen (eigenes Modul `MMM-OeV`), darunter der Entsorgungskalender |
-| Unten | SRF News |
+| Unten links | Familienkalender mit Symbolen je nach Termin, darunter der Entsorgungskalender |
+| Unten rechts | Die nächsten Stunden, Prognose für fünf Tage, nächste Abfahrten ab Ermatingen (eigenes Modul `MMM-OeV`) |
+| Ganz unten | SRF News |
+
+Das Layout ist fürs Hochformat ausgelegt. Mit `AUSRICHTUNG = "quer"` oben in `config/config.js` verteilt es sich automatisch für ein Querformat.
 
 ## 1. Neuesten Stand auf den Pi holen
 

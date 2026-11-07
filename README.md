@@ -31,6 +31,7 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 | `modules/MMM-OeV` | Eigenes Modul: nächste Abfahrten ab Ermatingen |
 | `scripts/install.sh` | Automatisierte Installation auf dem Raspberry Pi |
 | `scripts/update.sh` | Neuesten Stand holen und Spiegel neu laden |
+| `scripts/ausrichtung.sh` | Bild dauerhaft ins Hochformat drehen |
 | `scripts/bildschirm.sh` | TV per HDMI-CEC ein- und ausschalten |
 | `scripts/kiosk-modus.sh` | Anzeige über Chromium statt Electron (für den Pi 3) |
 | `scripts/crontab.txt` | Zeitplan für das automatische Ein- und Ausschalten |
@@ -50,11 +51,11 @@ Die Smart-TV-Funktionen von Samsung (Tizen) werden bewusst nicht genutzt. Älter
 - **Kalender:** Outlook.com (Hotmail), Anleitung in `docs/software.md`
 - **Rechner:** Raspberry Pi 3 mit Raspberry Pi OS 64-bit (Debian 13), Anzeige über Chromium im Kiosk-Modus
 - **Software:** MagicMirror² 2.38 läuft im Keller am Samsung, Konfiguration siehe `docs/einrichten.md`
+- **Ausrichtung:** Hochformat (`scripts/ausrichtung.sh`, Layout über `AUSRICHTUNG` in `config/config.js`)
 - **Wand:** Schweizer Lochziegel, Verputz ca. 1 bis 2 mm, ohne Schlag bohren (siehe `docs/hardware.md`)
 
 ## Offene Punkte
 
-- Ausrichtung hoch oder quer (Entscheidungshilfe in `docs/tv-ue55ku6070.md`)
 - Genauer Standort an der Wand
 - Masse und VESA-Abstand des TVs nachmessen
 - Stromversorgung: Steckdose hinter dem TV vorhanden oder nachrüsten?

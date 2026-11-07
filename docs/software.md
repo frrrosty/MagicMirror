@@ -128,15 +128,15 @@ Host spiegel
 
 Danach verbindet sich der Laptop mit `ssh spiegel`. Nur den öffentlichen Schlüssel (`.pub`) weitergeben, den privaten nie.
 
-## Ausrichtung (falls Hochformat)
+## Ausrichtung
 
-Solange Hoch- oder Querformat nicht entschieden ist, bleibt das Bild quer. Für einen Test im Hochformat per SSH:
+Der Spiegel hängt im Hochformat. Das Installationsskript dreht das Bild dauerhaft um 90 Grad. Steht es auf dem Kopf, weil der TV andersherum gedreht wurde, die andere Richtung wählen:
 
 ```bash
-WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/run/user/$(id -u) wlr-randr --output HDMI-A-1 --transform 90
+bash ~/magicmirror-setup/scripts/ausrichtung.sh hoch-links
 ```
 
-Das gilt nur bis zum nächsten Neustart. Die dauerhafte Einstellung richten wir ein, sobald der Entscheid gefallen ist.
+Mit `hoch` geht es zurück, mit `quer` wird das Bild wieder normal. Die Einstellung wirkt sofort und bleibt nach einem Neustart erhalten. Passend dazu steht oben in `config/config.js` die Einstellung `AUSRICHTUNG` (`"hoch"` oder `"quer"`), die das Layout bestimmt.
 
 ## 4. TV automatisch ein- und ausschalten
 

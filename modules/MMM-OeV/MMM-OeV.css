@@ -35,6 +35,7 @@
 }
 
 .oev-to {
+	text-align: left;
 	max-width: 14em;
 	overflow: hidden;
 	text-overflow: ellipsis;

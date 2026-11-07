@@ -15,6 +15,35 @@ try {
 const STANDORT = { lat: 47.6703, lon: 9.0856 };
 const HALTESTELLE = "Ermatingen";
 
+// "hoch" oder "quer", passend zu scripts/ausrichtung.sh
+const AUSRICHTUNG = "hoch";
+const HOCH = AUSRICHTUNG === "hoch";
+
+/* Wo welches Modul erscheint. Im Hochformat bleibt das obere Drittel
+ * fürs Gesicht frei, die Details sitzen in der unteren Hälfte.
+ */
+const PLATZ = HOCH
+	? {
+		uhr: "top_left",
+		wetter: "top_right",
+		familie: "bottom_left",
+		wetterStunden: "bottom_right",
+		prognose: "bottom_right",
+		oev: "bottom_right",
+		entsorgung: "bottom_left",
+		spruch: "middle_center"
+	}
+	: {
+		uhr: "top_left",
+		wetter: "top_right",
+		familie: "top_left",
+		wetterStunden: "top_right",
+		prognose: "top_right",
+		oev: "bottom_left",
+		entsorgung: "bottom_left",
+		spruch: "lower_third"
+	};
+
 /* Sprüche in Mundart, je nach Tageszeit, Wetter und Datum.
  * Wetterschlüssel siehe https://docs.magicmirror.builders/modules/compliments.html
  */
@@ -71,10 +100,10 @@ const modules = [
 		module: "alert"
 	},
 
-	// Oben links: Zeit und Familie
+	// Zeit und Familie
 	{
 		module: "clock",
-		position: "top_left",
+		position: PLATZ.uhr,
 		config: {
 			dateFormat: "dddd, D. MMMM",
 			displaySeconds: false,
@@ -85,14 +114,14 @@ const modules = [
 	{
 		module: "calendar",
 		header: "Familie",
-		position: "top_left",
+		position: PLATZ.familie,
 		config: {
 			maximumEntries: 7,
 			maximumNumberOfDays: 21,
 			fade: true,
 			fadePoint: 0.5,
 			wrapEvents: true,
-			maxTitleLength: 30,
+			maxTitleLength: HOCH ? 24 : 30,
 			timeFormat: "relative",
 			getRelative: 12,
 			urgency: 2,
@@ -120,10 +149,10 @@ const modules = [
 		}
 	},
 
-	// Oben rechts: Wetter am See
+	// Wetter am See
 	{
 		module: "weather",
-		position: "top_right",
+		position: PLATZ.wetter,
 		config: {
 			weatherProvider: "openmeteo",
 			type: "current",
@@ -139,14 +168,14 @@ const modules = [
 	},
 	{
 		module: "weather",
-		position: "top_right",
+		position: PLATZ.wetterStunden,
 		header: "Die nächsten Stunden",
 		config: {
 			weatherProvider: "openmeteo",
 			type: "hourly",
 			lat: STANDORT.lat,
 			lon: STANDORT.lon,
-			maxEntries: 6,
+			maxEntries: HOCH ? 4 : 6,
 			showPrecipitationProbability: true,
 			roundTemp: true,
 			fade: false,
@@ -155,7 +184,7 @@ const modules = [
 	},
 	{
 		module: "weather",
-		position: "top_right",
+		position: PLATZ.prognose,
 		header: "Prognose",
 		config: {
 			weatherProvider: "openmeteo",
@@ -170,10 +199,10 @@ const modules = [
 		}
 	},
 
-	// Unten links: Abfahrten und Entsorgung
+	// Abfahrten
 	{
 		module: "MMM-OeV",
-		position: "bottom_left",
+		position: PLATZ.oev,
 		header: `Abfahrten ${HALTESTELLE}`,
 		config: {
 			station: HALTESTELLE,
@@ -182,10 +211,10 @@ const modules = [
 		}
 	},
 
-	// Mitte: Platz fürs Spiegelbild, darunter ein Spruch
+	// Spruch, unterhalb des Spiegelbilds
 	{
 		module: "compliments",
-		position: "lower_third",
+		position: PLATZ.spruch,
 		config: {
 			compliments: sprueche,
 			updateInterval: 60 * 1000,
@@ -221,7 +250,7 @@ if (secrets.entsorgung) {
 	modules.splice(modules.findIndex((m) => m.module === "compliments"), 0, {
 		module: "calendar",
 		header: "Entsorgung",
-		position: "bottom_left",
+		position: PLATZ.entsorgung,
 		config: {
 			maximumEntries: 3,
 			maximumNumberOfDays: 14,

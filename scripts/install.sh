@@ -46,6 +46,8 @@ CMDLINE=/boot/firmware/cmdline.txt
 if [ -f "$CMDLINE" ] && ! grep -q "video=HDMI-A-1" "$CMDLINE"; then
 	sudo sed -i '1 s/$/ video=HDMI-A-1:1920x1080@60/' "$CMDLINE"
 fi
+# Spiegel hängt im Hochformat; mit AUSRICHTUNG=quer oder hoch-links übersteuerbar
+bash "$REPO_DIR/scripts/ausrichtung.sh" "${AUSRICHTUNG:-hoch}"
 
 echo "==> MagicMirror² mit pm2 starten"
 sudo npm install -g pm2
@@ -80,6 +82,6 @@ Name=MagicMirror
 Exec=sh -c "sleep 5 && pm2 resurrect"
 EOF
 
-chmod +x "$REPO_DIR/scripts/bildschirm.sh"
+chmod +x "$REPO_DIR"/scripts/*.sh "$REPO_DIR"/scripts/*.py
 echo "==> Fertig. Status: pm2 status | Protokoll: pm2 logs MagicMirror"
 echo "    Für die 1080p-Ausgabe einmal neu starten: sudo reboot"
