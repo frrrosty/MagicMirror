@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
 # Schaltet den Samsung TV über HDMI-CEC (Anynet+) ein oder in den Standby.
 # Aufruf: bildschirm.sh ein | aus | status
+# Bevorzugt cec-ctl (Paket v4l-utils), sonst cec-client (Paket cec-utils).
 # Fallback ohne CEC: MODUS=signal bildschirm.sh aus  (schaltet nur das HDMI-Signal ab)
 set -euo pipefail
 
 MODUS="${MODUS:-cec}"
 AUSGANG="${AUSGANG:-HDMI-A-1}"
+GERAET="${CEC_GERAET:-$(ls /dev/cec* 2>/dev/null | head -n1)}"
 
-cec() {
+cec_ctl () {
+	# Einmal als Wiedergabegerät anmelden, sonst darf der Pi keine Befehle senden
+	cec-ctl -d "$GERAET" --playback >/dev/null
+	cec-ctl -d "$GERAET" "$@"
+}
+
+cec_client () {
 	echo "$1" | cec-client -s -d 1
 }
 
-signal() {
+signal () {
 	# Wayland (labwc/wayfire); funktioniert auch per SSH und cron
 	local runtime="/run/user/$(id -u)"
 	local socket
@@ -20,18 +28,27 @@ signal() {
 		wlr-randr --output "$AUSGANG" "$1"
 }
 
-case "${1:-}" in
-	ein)
-		if [ "$MODUS" = signal ]; then signal --on; else cec "on 0"; cec "as"; fi
-		;;
-	aus)
-		if [ "$MODUS" = signal ]; then signal --off; else cec "standby 0"; fi
-		;;
-	status)
-		cec "pow 0"
-		;;
-	*)
-		echo "Aufruf: $0 ein | aus | status" >&2
-		exit 1
-		;;
-esac
+if [ "$MODUS" = signal ]; then
+	case "${1:-}" in
+		ein) signal --on ;;
+		aus) signal --off ;;
+		*) echo "Aufruf: MODUS=signal $0 ein | aus" >&2; exit 1 ;;
+	esac
+	exit 0
+fi
+
+if command -v cec-ctl >/dev/null && [ -n "$GERAET" ]; then
+	case "${1:-}" in
+		ein) cec_ctl --to 0 --image-view-on ;;
+		aus) cec_ctl --to 0 --standby ;;
+		status) cec_ctl --to 0 --give-device-power-status ;;
+		*) echo "Aufruf: $0 ein | aus | status" >&2; exit 1 ;;
+	esac
+else
+	case "${1:-}" in
+		ein) cec_client "on 0"; cec_client "as" ;;
+		aus) cec_client "standby 0" ;;
+		status) cec_client "pow 0" ;;
+		*) echo "Aufruf: $0 ein | aus | status" >&2; exit 1 ;;
+	esac
+fi
