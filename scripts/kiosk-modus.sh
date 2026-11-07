@@ -6,13 +6,12 @@ set -euo pipefail
 
 MM_DIR="$HOME/MagicMirror"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-RUNTIME_DIR="/run/user/$(id -u)"
 
-BROWSER="$(command -v chromium || command -v chromium-browser || true)"
-if [ -z "$BROWSER" ]; then
+# Chromium muss vorhanden sein
+if ! command -v chromium >/dev/null && ! command -v chromium-browser >/dev/null; then
 	sudo apt-get install -y chromium
-	BROWSER="$(command -v chromium)"
 fi
+chmod +x "$REPO_DIR/scripts/kiosk-start.sh"
 
 echo "==> MagicMirror² als reinen Server starten"
 pm2 delete MagicMirror >/dev/null 2>&1 || true
@@ -20,27 +19,15 @@ pm2 start npm --name MagicMirror --cwd "$MM_DIR" -- run server
 pm2 save
 
 echo "==> Chromium-Kiosk beim Anmelden starten"
-# Chromium startet sofort mit einer schwarzen Warteseite, während der Server noch
-# hochfährt, und wechselt selbst zum Spiegel. Das spart auf dem Pi 3 viel Zeit.
-CHROMIUM_FLAGS="--kiosk --noerrdialogs --disable-infobars --incognito --password-store=basic --no-first-run --disable-features=Translate,MediaRouter --disable-component-update --check-for-update-interval=31536000"
-KIOSK_CMD="$BROWSER $CHROMIUM_FLAGS file://$REPO_DIR/scripts/warten.html"
+# Startbefehl als eigenes Skript: Desktop-Dateien vertragen keine verschachtelten Anführungszeichen
 mkdir -p "$HOME/.config/autostart"
 cat > "$HOME/.config/autostart/magicmirror-kiosk.desktop" <<EOF
 [Desktop Entry]
 Type=Application
 Name=MagicMirror Kiosk
-Exec=sh -c '$KIOSK_CMD'
+Exec=$REPO_DIR/scripts/kiosk-start.sh
 EOF
 
 echo "==> Kiosk jetzt sofort starten"
-WL_SOCKET="$(ls "$RUNTIME_DIR" 2>/dev/null | grep -m1 -E '^wayland-[0-9]+$' || true)"
-if [ -n "$WL_SOCKET" ]; then
-	pkill -f -- "--kiosk" >/dev/null 2>&1 || true
-	# Chromium lässt nur eine Instanz zu: warten, bis die alte wirklich beendet ist
-	for _ in $(seq 20); do pgrep -f -- "--kiosk" >/dev/null || break; sleep 0.5; done
-	WAYLAND_DISPLAY="$WL_SOCKET" XDG_RUNTIME_DIR="$RUNTIME_DIR" \
-		setsid sh -c "$KIOSK_CMD" >/dev/null 2>&1 < /dev/null &
-	echo "    Der Spiegel sollte in Kürze auf dem TV erscheinen."
-else
-	echo "    Kein Desktop gefunden. Nach einem Neustart erscheint der Spiegel automatisch."
-fi
+setsid "$REPO_DIR/scripts/kiosk-start.sh" >/dev/null 2>&1 < /dev/null &
+echo "    Der Spiegel sollte in Kürze auf dem TV erscheinen. Protokoll: ~/.cache/kiosk.log"
