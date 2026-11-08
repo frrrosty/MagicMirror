@@ -256,6 +256,9 @@
 		let tagGewaehlt = TAGE[(new Date().getDay() + 6) % 7][0];
 		let reiter = speicher.get("sp-reiter") || "pinnwand";
 		let pinPause = false;     // nach «Abbrechen» beim automatischen Neuladen nicht erneut fragen
+		let token = speicher.get("sp-token");   // auch im Speicher, falls der Browser localStorage blockiert
+		let laufendeAnmeldung = null;            // nur eine Anmeldung gleichzeitig
+		let laedt = false;                       // kein überlappendes Neuladen
 		// Alte Version speicherte die PIN selbst; heute nur noch ein Geräte-Token
 		speicher.set("pw-pin", "");
 
@@ -282,36 +285,51 @@
 		 * Einmalige Anmeldung mit der PIN. Danach schickt die App nur noch das Geräte-Token,
 		 * die PIN selbst wird nicht gespeichert.
 		 */
-		async function anmelden () {
-			const pin = prompt("PIN des Spiegels (einmalig für dieses Gerät):");
-			if (pin === null) {
-				pinPause = true;
-				throw new Error("Abgebrochen");
+		function anmelden () {
+			// Laufen mehrere Anfragen gleichzeitig in die Anmeldung, warten alle auf dieselbe
+			if (!laufendeAnmeldung) {
+				laufendeAnmeldung = (async () => {
+					const pin = prompt("PIN des Spiegels (einmalig für dieses Gerät):");
+					if (pin === null) {
+						pinPause = true;
+						throw new Error("Abgebrochen");
+					}
+					pinPause = false;
+					const res = await fetch("api/anmelden", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ pin: pin.trim(), name: speicher.get("pw-name") })
+					});
+					const json = await res.json();
+					if (!res.ok) throw new Error(json.fehler || "Anmeldung fehlgeschlagen");
+					token = json.token;
+					speicher.set("sp-token", token);
+				})().finally(() => {
+					laufendeAnmeldung = null;
+				});
 			}
-			pinPause = false;
-			const res = await fetch("api/anmelden", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ pin: pin.trim(), name: speicher.get("pw-name") })
-			});
-			const json = await res.json();
-			if (!res.ok) throw new Error(json.fehler || "Anmeldung fehlgeschlagen");
-			speicher.set("sp-token", json.token);
+			return laufendeAnmeldung;
 		}
 
 		async function api (methode, pfad, body, fragen = true) {
-			const anfrage = () => fetch(`api/${pfad}`, {
+			const anfrage = (mitToken) => fetch(`api/${pfad}`, {
 				method: methode,
-				headers: { "Content-Type": "application/json", "X-Token": speicher.get("sp-token") },
+				headers: { "Content-Type": "application/json", "X-Token": mitToken },
 				body: body ? JSON.stringify(body) : undefined
 			});
-			let res = await anfrage();
+			const gesendet = token;
+			let res = await anfrage(gesendet);
 			if (res.status === 401) {
-				// Kein oder abgelaufenes Token: ungültiges Token nicht weiter mitschicken
-				speicher.set("sp-token", "");
-				if (!fragen) throw new Error("Abgebrochen");
-				await anmelden();
-				res = await anfrage();
+				// Nur verwerfen, wenn inzwischen keine andere Anfrage ein neues Token geholt hat
+				if (token === gesendet) {
+					token = "";
+					speicher.set("sp-token", "");
+				}
+				if (!token) {
+					if (!fragen && !laufendeAnmeldung) throw new Error("Abgebrochen");
+					await anmelden();
+				}
+				res = await anfrage(token);
 			}
 			const json = await res.json();
 			if (!res.ok) throw new Error(json.fehler || "Fehler");
@@ -573,6 +591,8 @@
 
 		// ------------------------- Laden -------------------------
 		async function laden () {
+			if (laedt) return;
+			laedt = true;
 			try {
 				if (reiter === "pinnwand") {
 					pinnwand = await api("GET", "pinnwand", undefined, !pinPause);
@@ -588,6 +608,8 @@
 				}
 			} catch (error) {
 				if (error.message !== "Abgebrochen") meldung(error instanceof TypeError ? "Spiegel nicht erreichbar" : error.message);
+			} finally {
+				laedt = false;
 			}
 		}
 
@@ -598,6 +620,7 @@
 		};
 		$("pinVergessen").onclick = (e) => {
 			e.preventDefault();
+			token = "";
 			speicher.set("sp-token", "");
 			pinPause = false;
 			laden();
