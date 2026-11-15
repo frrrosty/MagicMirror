@@ -1,3 +1,15 @@
+# Persönliches (Kalenderlinks, PIN)
 config/secrets.js
+
+# Abhängigkeiten
 node_modules/
+
+# Python
 __pycache__/
+.venv/
+*.py[cod]
+
+# OS und IDE
+.vscode/
+Thumbs.db
+.DS_Store
