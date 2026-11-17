@@ -13,7 +13,27 @@
 }
 
 .rr-radar {
-	transition: opacity 0.25s;
+	visibility: hidden;
+}
+
+/* Zeitachse unten links: ein Strich pro Bild, der aktuelle hell */
+.rr-achse {
+	position: absolute;
+	left: 8px;
+	bottom: 10px;
+	display: flex;
+	gap: 3px;
+}
+
+.rr-achse span {
+	width: 10px;
+	height: 4px;
+	border-radius: 2px;
+	background: rgb(255 255 255 / 25%);
+}
+
+.rr-achse span.aktiv {
+	background: var(--color-text-bright);
 }
 
 /* Eigener Standort */
